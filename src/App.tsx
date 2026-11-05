@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
 import {
   Archive, ArrowUpRight, Atom, BookOpen, Check,
   ChevronDown, Clock3, Command, FileText, FlaskConical,
@@ -121,7 +122,7 @@ function App() {
   )
 }
 
-function Stat({ icon, label, value, detail }: { icon: React.ReactNode; label: string; value: string; detail: string }) {
+function Stat({ icon, label, value, detail }: { icon: ReactNode; label: string; value: string; detail: string }) {
   return <div className="stat-card"><div className="stat-top"><span className="stat-icon">{icon}</span><span className="stat-label">{label}</span></div><div className="stat-value">{value}</div><div className="stat-detail">{detail}</div></div>
 }
 
