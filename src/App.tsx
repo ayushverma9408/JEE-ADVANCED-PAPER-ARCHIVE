@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import {
-  Archive, ArrowDownToLine, ArrowUpRight, Atom, BookOpen, Check,
-  ChevronDown, Clock3, Command, FileText, FlaskConical, GraduationCap,
+  Archive, ArrowUpRight, Atom, BookOpen, Check,
+  ChevronDown, Clock3, Command, FileText, FlaskConical,
   LayoutDashboard, Menu, Search, SlidersHorizontal, Sparkles, X,
 } from 'lucide-react'
 import { papers, years } from './data/papers'
