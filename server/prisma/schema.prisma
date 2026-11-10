@@ -91,6 +91,7 @@ model ExamAttempt {
   startedAt      DateTime        @default(now())
   submittedAt    DateTime?
   score          Float?
+  resultData     Json?
   answers        AttemptAnswer[]
 
   @@index([userId, startedAt])
