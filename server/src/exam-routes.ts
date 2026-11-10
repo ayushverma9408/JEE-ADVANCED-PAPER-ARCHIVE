@@ -258,7 +258,7 @@ export function createExamRouter(prisma: PrismaClient) {
       let unansweredCount = 0
       const breakdown = attempt.exam.questions.map((question) => {
         const answer = answerMap.get(question.id) ?? null
-        const answered = answer !== null
+        const answered = answer !== null && answer !== undefined && !(typeof answer === 'string' && answer.trim() === '') && !(Array.isArray(answer) && answer.length === 0)
         const correct = answered && isCorrect(question, answer)
         const marksAwarded = correct ? question.positiveMarks : answered ? -question.negativeMarks : 0
         score += marksAwarded
