@@ -8,6 +8,7 @@ import { PrismaClient } from '@prisma/client'
 import { createAuthRouter } from './auth-routes.js'
 import { createAdminRouter } from './admin-routes.js'
 import { createExamRouter } from './exam-routes.js'
+import { createAnalyticsRouter } from './analytics-routes.js'
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -78,6 +79,7 @@ app.use('/api/auth', authLimiter, createAuthRouter({
 }))
 app.use('/api/admin', adminLimiter, createAdminRouter(prisma))
 app.use('/api/exams', createExamRouter(prisma))
+app.use('/api/analytics', createAnalyticsRouter(prisma))
 
 app.use((_req, res) => {
   res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Route not found.' } })
