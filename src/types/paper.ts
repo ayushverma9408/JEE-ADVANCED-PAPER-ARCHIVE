@@ -1,4 +1,5 @@
 export type PaperStatus = 'available' | 'pending'
+export type PaperLanguage = 'English' | 'Hindi'
 
 export interface Paper {
   id: string
@@ -6,7 +7,8 @@ export interface Paper {
   paperNumber: 1 | 2
   subjects: string[]
   status: PaperStatus
-  pdfUrl?: string
+  pdfUrls: Partial<Record<PaperLanguage, string>>
+  sourceUrl: string
 }
 
 export type Subject = 'All subjects' | 'Physics' | 'Chemistry' | 'Mathematics'
