@@ -104,6 +104,12 @@ export default function ExamCenter({ onBack }: Props) {
         answer: item.answer, isMarked: item.isMarked, isVisited: item.isVisited,
       }])))
       setActiveIndex(0)
+      const firstQuestion = data.exam.questions[0]
+      if (firstQuestion && data.attempt.status === 'IN_PROGRESS' && !data.answers.some((item) => item.questionId === firstQuestion.id && item.isVisited)) {
+        setAnswers((old) => ({ ...old, [firstQuestion.id]: { answer: null, isMarked: false, isVisited: true } }))
+        void api(`/attempts/${data.attempt.id}/answers/${firstQuestion.id}`, { method: 'PATCH', body: JSON.stringify({ isVisited: true }) })
+          .catch((err: unknown) => setError(err instanceof Error ? `Could not save question state: ${err.message}` : 'Could not save question state.'))
+      }
       setRemaining(Math.max(0, Math.floor((new Date(data.attempt.deadlineAt).getTime() - Date.now()) / 1000)))
       if (data.attempt.status !== 'IN_PROGRESS') {
         setError('This attempt is already closed. Start a new published paper when available.')
