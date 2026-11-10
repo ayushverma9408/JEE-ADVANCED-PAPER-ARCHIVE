@@ -37,7 +37,7 @@ export function createAnalyticsRouter(prisma: PrismaClient) {
     try {
       const userId = res.locals.user.id as string
       const attempts = await prisma.examAttempt.findMany({
-        where: { userId, status: { in: ['SUBMITTED', 'EXPIRED'] }, submittedAt: { not: null } },
+        where: { userId, status: { in: ['SUBMITTED', 'EXPIRED'] }, submittedAt: { not: null }, score: { not: null } },
         orderBy: { submittedAt: 'asc' },
         select: {
           id: true, status: true, startedAt: true, submittedAt: true, score: true, resultData: true,
