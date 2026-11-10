@@ -7,6 +7,8 @@ import {
 } from 'lucide-react'
 import { papers, years } from './data/papers'
 import type { Paper, PaperLanguage, Subject } from './types/paper'
+import AuthModal from './components/AuthModal'
+import { getCurrentUser, signOut, type AuthUser } from './lib/auth'
 
 const subjects: Subject[] = ['All subjects', 'Physics', 'Chemistry', 'Mathematics']
 
@@ -43,12 +45,35 @@ function App() {
   const [activeSubject, setActiveSubject] = useState<Subject>('All subjects')
   const [query, setQuery] = useState('')
   const [mobileMenu, setMobileMenu] = useState(false)
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null)
+  const [authOpen, setAuthOpen] = useState(false)
   const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null)
   const [readerLanguage, setReaderLanguage] = useState<PaperLanguage>('English')
   const [readerFullscreen, setReaderFullscreen] = useState(false)
   const [readerZoom, setReaderZoom] = useState(100)
   const [readerPage, setReaderPage] = useState(1)
   const readerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    let active = true
+    getCurrentUser()
+      .then((user) => { if (active) setAuthUser(user) })
+      .catch(() => { if (active) setAuthUser(null) })
+    return () => { active = false }
+  }, [])
+
+  const handleAccountClick = async () => {
+    if (!authUser) {
+      setAuthOpen(true)
+      return
+    }
+    try {
+      await signOut()
+      setAuthUser(null)
+    } catch {
+      // Keep the signed-in state visible if the API is temporarily unavailable.
+    }
+  }
 
   const openReader = (paper: Paper) => {
     const position = getReaderPosition(paper.id, 'English')
@@ -156,7 +181,14 @@ function App() {
           <div className="breadcrumb"><span>Workspace</span><span className="crumb-slash">/</span><strong>Overview</strong></div>
           <div className="topbar-actions">
             <div className="search-box"><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search papers..." /><kbd>⌘ K</kbd></div>
-            <button className="avatar" title="JEE Advanced Archive">JA</button>
+            <button
+              className={authUser ? 'avatar avatar-signed-in' : 'avatar'}
+              title={authUser ? `Sign out · ${authUser.email}` : 'Sign in or create an account'}
+              aria-label={authUser ? `Sign out ${authUser.name}` : 'Sign in or create an account'}
+              onClick={handleAccountClick}
+            >
+              {authUser ? authUser.name.trim().split(/\\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase() : 'JA'}
+            </button>
           </div>
           <button className="icon-button mobile-menu-button" onClick={() => setMobileMenu(true)} aria-label="Open menu"><Menu size={20} /></button>
         </header>
@@ -208,6 +240,11 @@ function App() {
           <footer className="footer"><span>JEE ARCHIVE <span className="footer-muted">· A COMMUNITY-FOCUSED STUDY RESOURCE</span></span><span>BUILT TO KEEP YOU MOVING FORWARD <span className="footer-star">✳</span></span></footer>
         </div>
       </main>
+
+      {authOpen && <AuthModal
+        onClose={() => setAuthOpen(false)}
+        onAuthenticated={(user) => { setAuthUser(user); setAuthOpen(false) }}
+      />}
 
       {selectedPaper && <div className="reader-backdrop" onClick={() => setSelectedPaper(null)}>
         <section className="pdf-reader" ref={readerRef} onClick={(event) => event.stopPropagation()} aria-label="PDF paper reader">
