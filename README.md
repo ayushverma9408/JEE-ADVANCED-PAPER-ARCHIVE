@@ -1,42 +1,20 @@
 # JEE Advanced Paper Archive
 
-A full-stack JEE Advanced archive and exam-practice platform. The existing frontend provides a responsive library of official previous-year paper PDFs (2007–2025). A separate API and PostgreSQL data model support accounts and are being extended for interactive exams, saved attempts, scoring, and performance analytics.
+A full-stack JEE Advanced archive and exam-practice platform. The frontend provides official previous-year paper PDFs (2007–2025), while the API and PostgreSQL database support accounts, published practice exams, saved attempts, scoring, and performance analytics.
 
-## Current features
+## Features
 
-### Archive frontend
-
-- Browse 19 years of JEE Advanced papers (2007–2025)
-- Separate Paper 1 and Paper 2 entries for each year
-- Filter by Physics, Chemistry, and Mathematics
-- Search papers by year and paper number
-- Embedded PDF reader with English/Hindi language switching where available
-- Previous/Next paper navigation, zoom controls, and page navigation
-- Locally save and restore each paper's selected page and zoom
-- Responsive dark academic interface
-
-### Full-stack foundation
-
-- React + TypeScript + Vite frontend
-- Node.js + Express + TypeScript API in the `server/` workspace
-- PostgreSQL database schema managed with Prisma
-- Models for users, sessions, exams, questions, exam attempts, and saved answers, with Prisma SQL migrations
-- User registration/login UI with session restoration and sign-out
-- Bcrypt password hashing and opaque, hashed database sessions
-- HttpOnly, SameSite cookie sessions with seven-day expiry
-- Role-based access control: standard users and administrators
-- Protected admin APIs for exam and question CRUD
-- Role-gated admin dashboard for creating exams, adding questions, managing the question bank, and publishing papers
-- Student practice-exam interface for published papers with single-correct, multiple-correct, and numerical responses
-- Timed attempts with server-authoritative deadlines, answer autosave, resume support, question palette, and mark-for-review state
-- Server-side evaluation using each question's configured positive/negative marks; answer keys are excluded from student delivery responses
-- Authenticated attempt history with saved question-level result reviews
-- Performance dashboard with attempt totals, average/best score, accuracy, subject breakdown, and topic revision priorities
-- Historical result snapshots preserve the answer key and question context used at submission time
-- Zod request validation and rate-limited authentication/admin routes
-- CI builds the frontend and backend separately
-
-> The admin API includes answer keys, but it is restricted to authenticated administrators. Public exam-delivery endpoints must never return correct answers. PostgreSQL must be configured and migrated locally before account and admin APIs can be used.
+- Browse 19 years of JEE Advanced papers (2007–2025), with Paper 1 and Paper 2 entries.
+- Filter by Physics, Chemistry, and Mathematics; search by year and paper.
+- Embedded PDF reader with language switching where available, zoom, page navigation, and saved reading position.
+- Registration, login, session restoration, and sign-out using bcrypt password hashes and opaque HttpOnly sessions.
+- Role-based access control with protected publisher/admin APIs and dashboard.
+- Create exams, manage questions, and publish papers.
+- Student exam engine for single-correct, multiple-correct, and numerical questions.
+- Server-authoritative exam deadlines, answer autosave, resume, question palette, and mark-for-review.
+- Server-side scoring with configured positive and negative marks; answer keys are not returned during active attempts.
+- Private attempt history, question-level result review, subject performance, and topic revision priorities.
+- PostgreSQL schema and versioned Prisma SQL migrations.
 
 ## Technology
 
@@ -47,83 +25,132 @@ A full-stack JEE Advanced archive and exam-practice platform. The existing front
 | Database | PostgreSQL |
 | ORM | Prisma |
 | Validation | Zod |
+| Frontend hosting | Vercel |
+| API hosting | Render |
+| Database hosting | Neon (or any managed PostgreSQL provider) |
 
 ## Run locally
 
 Requirements: Node.js 22+ and PostgreSQL 14+.
 
-Install all workspace dependencies from the repository root:
-
 ```bash
 npm install
 ```
 
-Configure the backend:
-
-```bash
-cp server/.env.example server/.env
-```
-
-Set `DATABASE_URL` in `server/.env` to your PostgreSQL connection string. Then generate Prisma Client and create the database tables:
+Copy `server/.env.example` to `server/.env` and set `DATABASE_URL` to your PostgreSQL connection string. Keep this file private; never commit credentials.
 
 ```bash
 npm run db:generate
 npm run db:migrate
 ```
 
-Start the frontend:
+Run the frontend and API in separate terminals:
 
 ```bash
 npm run dev
-```
-
-Start the API in a second terminal:
-
-```bash
 npm run dev:server
 ```
 
-The frontend runs at `http://localhost:5173` and the API at `http://localhost:4000`. During local development, Vite proxies `/api` requests to the backend.
+Frontend: `http://localhost:5173`  
+API: `http://localhost:4000`
 
-## Analytics API\n\n- `GET /api/analytics/summary` — the signed-in user's scored attempt history and aggregate performance.\n- `GET /api/analytics/attempts/:attemptId` — question-level review for that user's closed attempt only.\n\nResult snapshots are stored when an attempt is evaluated, so later edits to a published question do not rewrite historical review data. Active attempts never expose correct answers.\n\n## API health checks
+## Production deployment
 
-- `GET /api/health` — confirms that the API process is running.
-- `GET /api/health/database` — checks the PostgreSQL connection.
+The deployment configuration in this repository uses Vercel for the Vite frontend, Render for the Express API, and Neon for managed PostgreSQL. The Vercel rewrite sends `/api/*` requests through the frontend's own domain to the Render service. This keeps browser requests same-origin, including the HttpOnly session cookie.
 
-## Administrator setup
+### 1. Create the production database
 
-New registrations are always standard `USER` accounts. To promote your own account to administrator, first register normally, then run this statement in your trusted PostgreSQL console:
+1. Create a PostgreSQL project in Neon.
+2. Copy the **direct (non-pooled) connection string** for the production database.
+3. Keep the connection string private. Do not paste it into GitHub, source files, or chat.
+
+### 2. Deploy the API on Render
+
+1. In Render, choose **New → Blueprint** and connect this GitHub repository.
+2. Render reads `render.yaml` and creates the `jee-archive-api` web service.
+3. In the service's Environment settings, set:
+   - `DATABASE_URL`: the Neon PostgreSQL connection string.
+   - `CLIENT_ORIGIN`: the exact production Vercel URL, for example `https://your-project.vercel.app`.
+4. Deploy. The build command generates Prisma Client, builds the API, and applies committed migrations using `prisma migrate deploy`.
+5. Check `https://jee-archive-api.onrender.com/api/health`. It should return JSON with `"status":"ok"`.
+
+The free Render web service may sleep when idle; the first request after inactivity can take longer.
+
+### 3. Deploy the frontend on Vercel
+
+1. In Vercel, import this repository.
+2. Use the Vite defaults: build command `npm run build`, output directory `dist`, install command `npm install`.
+3. Deploy the project.
+4. The committed `vercel.json` proxies `/api/*` to `https://jee-archive-api.onrender.com/api/*`.
+
+If you choose a different Render service name or custom API domain, update the destination in `vercel.json` and redeploy the frontend. If Vercel assigns a different production domain, update Render's `CLIENT_ORIGIN` to match it exactly.
+
+### 4. Verify production
+
+After both services are deployed:
+
+- Open `https://your-project.vercel.app/api/health`; it should return the API health response.
+- Open `https://your-project.vercel.app/api/health/database`; it should report `"database":"connected"`.
+- Register a test student account and verify login, logout, and session restoration.
+- Verify the student can see published papers, complete a short test, and review the result.
+- Verify a normal student cannot access `/api/admin/*`.
+- Sign in with the publisher account and verify the Admin Dashboard and publishing flow.
+
+The Vercel rewrite is important: use the Vercel domain for the app, not the Render API domain directly in the browser. Session cookies are HttpOnly and Secure in production.
+
+### 5. Publisher account on a fresh production database
+
+A newly created Neon database starts empty. Register the publisher account through the deployed app first. If that production account is not already marked as `ADMIN`, update its role through Neon SQL Editor using the exact registered email:
 
 ```sql
 UPDATE "User"
 SET "role" = 'ADMIN'
-WHERE "email" = 'your-account-email@example.com';
+WHERE "email" = 'your-registered-email@example.com';
 ```
 
-Replace the example email with your registered email. No public endpoint can grant administrator privileges.
+Then sign out and sign in again so the app reloads the role from the production session. Never add a public role-promotion endpoint.
+
+## Environment variables
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `NODE_ENV` | Production | Set to `production` on Render |
+| `PORT` | Render provides it | API listening port |
+| `CLIENT_ORIGIN` | Yes on Render | Exact Vercel production origin |
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+
+## API health checks
+
+- `GET /api/health` — API process health.
+- `GET /api/health/database` — database connectivity.
+- `GET /api/analytics/summary` — signed-in user's attempt history and aggregate performance.
+- `GET /api/analytics/attempts/:attemptId` — question-level review for that user's closed attempt.
 
 ## Project structure
 
 ```text
 .
 ├── .github/workflows/build.yml
+├── render.yaml
+├── vercel.json
 ├── server/
-│   ├── prisma/schema.prisma
-│   ├── src/
-│   │   ├── admin-routes.ts
-│   │   ├── auth-routes.ts
-│   │   ├── auth.ts
-│   │   ├── middleware.ts
-│   │   └── index.ts
-│   ├── .env.example
-│   ├── package.json
-│   └── tsconfig.json
+│   ├── prisma/
+│   │   ├── migrations/
+│   │   └── schema.prisma
+│   └── src/
+│       ├── admin-routes.ts
+│       ├── analytics-routes.ts
+│       ├── auth-routes.ts
+│       ├── auth.ts
+│       ├── exam-routes.ts
+│       ├── middleware.ts
+│       └── index.ts
 ├── src/
+│   ├── components/
 │   ├── data/papers.ts
-│   ├── types/paper.ts
+│   ├── lib/auth.ts
 │   ├── App.tsx
-│   ├── index.css
-│   └── main.tsx
+│   └── index.css
 ├── package.json
 └── vite.config.ts
 ```
@@ -131,18 +158,16 @@ Replace the example email with your registered email. No public endpoint can gra
 ## Roadmap
 
 - [x] Official paper archive and PDF reader
-- [x] Saved PDF reading positions
 - [x] Backend workspace and API foundation
-- [x] Initial PostgreSQL/Prisma data model
-- [x] User registration, login, and session handling
+- [x] PostgreSQL/Prisma data model and migrations
+- [x] Registration, login, and session handling
 - [x] Role-based authorization and protected admin APIs
-- [x] Admin exam and question CRUD endpoints
-- [x] Admin dashboard UI
-- [x] Interactive MCQ, MSQ, and numerical exam engine
-- [x] Timed attempts, answer autosave, and submission
-- [x] JEE-style marking and result evaluation
+- [x] Admin dashboard and question management
+- [x] Student exam engine, autosave, and resume
+- [x] JEE-style evaluation and result review
 - [x] Attempt history and performance analytics
-- [ ] Production deployment for frontend, API, and database
+- [x] Vercel, Render, and managed PostgreSQL deployment configuration
+- [ ] Live production deployment and end-to-end verification
 
 ## Official paper sources
 
