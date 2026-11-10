@@ -252,3 +252,46 @@
 @media(max-width:1050px){.exam-list-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.exam-layout{grid-template-columns:minmax(0,1fr) 275px}}
 @media(max-width:800px){.exam-layout{grid-template-columns:1fr}.exam-palette-panel{position:static;order:-1}.exam-palette-section>div{grid-template-columns:repeat(8,minmax(0,1fr))}}
 @media(max-width:600px){.exam-page-heading,.exam-topline{align-items:flex-start;flex-direction:column}.exam-list-grid{grid-template-columns:1fr}.exam-question-panel,.exam-palette-panel{padding:14px}.exam-palette-section>div{grid-template-columns:repeat(6,minmax(0,1fr))}.exam-question-actions{justify-content:flex-start}.exam-result-grid{gap:6px}.exam-result-grid div{padding:10px}.exam-score{font-size:40px}}
+
+/* Attempt history and performance analytics */
+.analytics-page{display:grid;gap:18px;max-width:1450px}
+.analytics-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:18px}
+.analytics-kicker{display:flex;align-items:center;gap:7px;color:#a995f5;font:9px 'DM Mono',monospace;letter-spacing:1.3px}
+.analytics-heading h1{margin:8px 0 5px;color:#eef1fa;font:800 clamp(27px,4vw,39px) Manrope,sans-serif;letter-spacing:-1.2px}
+.analytics-heading h1 span{color:#a995f5}
+.analytics-heading p{margin:0;color:#8792a8;font-size:12px}
+.analytics-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.analytics-metric{display:grid;gap:9px;padding:17px;border:1px solid #252e40;border-radius:9px;background:linear-gradient(145deg,#151b29,#10141e)}
+.analytics-metric>span{color:#bbaaf1}.analytics-metric small{color:#8491a8;font:8px 'DM Mono',monospace;letter-spacing:1px}.analytics-metric strong{color:#eef1fa;font:700 26px Manrope,sans-serif}
+.analytics-columns{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.analytics-panel{min-width:0;padding:19px;border:1px solid #252e40;border-radius:9px;background:linear-gradient(145deg,#151b29,#10141e)}
+.analytics-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.analytics-panel-heading>div>span{color:#a995f5;font:8px 'DM Mono',monospace;letter-spacing:1.2px}
+.analytics-panel-heading h2{margin:5px 0 0;color:#e9edf7;font:700 17px Manrope,sans-serif}
+.analytics-subject{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;padding:12px 0;border-top:1px solid #252e40}
+.analytics-subject>div:first-child{display:grid;gap:4px}.analytics-subject strong,.analytics-topic-row strong{color:#dce3f1;font-size:11px}.analytics-subject span,.analytics-topic-row small{color:#7f8ca3;font-size:9px}.analytics-subject>b{color:#c4b3ff;font:11px 'DM Mono',monospace}
+.analytics-track{grid-column:1/-1;height:5px;border-radius:9px;background:#252e40;overflow:hidden}.analytics-track i{display:block;height:100%;border-radius:9px;background:#8f79d0}
+.analytics-topic-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #252e40}.analytics-topic-row>div{display:grid;gap:5px}.analytics-topic-row>b{color:#e4b2bd;font:9px 'DM Mono',monospace;white-space:nowrap}
+.analytics-history{padding:19px}.analytics-count{color:#8491a8;font:9px 'DM Mono',monospace}
+.analytics-attempt{display:grid;grid-template-columns:36px minmax(0,1fr) 60px auto;align-items:center;gap:11px;padding:12px 0;border-top:1px solid #252e40}
+.analytics-attempt-icon{width:34px;height:34px;display:grid;place-items:center;border:1px solid #40365e;border-radius:7px;background:#211d35;color:#c4b3ff}
+.analytics-attempt-copy{display:grid;gap:5px;min-width:0}.analytics-attempt-copy strong{color:#e0e6f2;font-size:11px;overflow-wrap:anywhere}.analytics-attempt-copy small{color:#7f8ca3;font-size:8px}
+.analytics-attempt>b{color:#e5ddff;font:700 14px 'DM Mono',monospace;text-align:right}
+.analytics-attempt>button{display:inline-flex;align-items:center;gap:5px;min-height:30px;padding:0 9px;border:1px solid #514274;border-radius:5px;background:#211d32;color:#d2c5ff;font-size:9px;cursor:pointer}
+.analytics-attempt>button:disabled{opacity:.5;cursor:wait}
+.analytics-empty{padding:20px 0;color:#7f8ca3;font-size:10px;line-height:1.6}
+.analytics-footnote{margin:0;color:#748199;font-size:9px;line-height:1.6}
+.analytics-review-summary{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:18px;border:1px solid #3b3457;border-radius:8px;background:#211d35}
+.analytics-review-summary>strong{color:#eee8ff;font:800 27px Manrope,sans-serif}.analytics-review-summary small{color:#a79acb;font:10px 'DM Mono',monospace}.analytics-review-summary>span{color:#a99bcf;font-size:9px}
+.analytics-review-list{display:grid;gap:10px}
+.analytics-review-card{padding:17px;border:1px solid #252e40;border-radius:8px;background:#111724}
+.analytics-review-top{display:flex;justify-content:space-between;gap:10px;color:#a995f5;font:8px 'DM Mono',monospace;letter-spacing:.8px}
+.analytics-review-top b{color:#aeb8cb;font-weight:500}.analytics-review-top b.good{color:#8bd8c0}.analytics-review-top b.bad{color:#e5a7b3}
+.analytics-review-card>p{margin:13px 0;color:#dce3f1;font-size:11px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
+.analytics-answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.analytics-answer-grid>div{display:grid;gap:6px;min-width:0;padding:10px;border:1px solid #30394c;border-radius:6px;background:#0d131f}
+.analytics-answer-grid small,.analytics-topic{color:#8792a8;font:8px 'DM Mono',monospace;letter-spacing:.7px}
+.analytics-answer-grid strong{color:#dce3f1;font-size:10px;overflow-wrap:anywhere}
+.analytics-topic{display:block;margin-top:10px}
+@media(max-width:900px){.analytics-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.analytics-columns{grid-template-columns:1fr}}
+@media(max-width:600px){.analytics-heading{align-items:flex-start;flex-direction:column}.analytics-review-summary{align-items:flex-start;flex-direction:column}.analytics-attempt{grid-template-columns:32px minmax(0,1fr) auto;gap:8px}.analytics-attempt>b{display:none}.analytics-attempt>button{grid-column:2/-1;justify-self:start}.analytics-answer-grid{grid-template-columns:1fr}.analytics-metrics{gap:8px}.analytics-metric{padding:12px}.analytics-metric strong{font-size:22px}.analytics-review-card{padding:12px}}
