@@ -24,7 +24,8 @@ function App() {
     return matchesYear && matchesSubject && matchesQuery
   }), [activeYear, activeSubject, query])
 
-  const availableCount = papers.filter((paper) => paper.status === 'available').length
+  const availableCount = papers.filter((paper) => paper.pdfUrls.English).length
+  const hindiCount = papers.filter((paper) => paper.pdfUrls.Hindi).length
 
   return (
     <div className="app-shell">
@@ -82,8 +83,8 @@ function App() {
           <section className="stats-grid" aria-label="Archive statistics">
             <Stat icon={<Archive size={17} />} label="YEARS IN ARCHIVE" value="19" detail="2007 — 2025" />
             <Stat icon={<FileText size={17} />} label="PAPER SLOTS" value="38" detail="2 papers per year" />
-            <Stat icon={<Check size={17} />} label="VERIFIED PDFS" value={String(availableCount).padStart(2, '0')} detail="Files added after verification" />
-            <Stat icon={<Clock3 size={17} />} label="IN THE PIPELINE" value={String(papers.length - availableCount).padStart(2, '0')} detail="Awaiting PDF upload" />
+            <Stat icon={<Check size={17} />} label="OFFICIAL PDF LINKS" value={String(availableCount).padStart(2, '0')} detail="Hosted by jeeadv.ac.in" />
+            <Stat icon={<BookOpen size={17} />} label="HINDI VERSIONS" value={String(hindiCount).padStart(2, '0')} detail="Available from 2019 onward" />
           </section>
 
           <section className="archive-section" id="archive">
@@ -103,7 +104,7 @@ function App() {
               {visiblePapers.map((paper) => <PaperCard key={paper.id} paper={paper} onOpen={() => setSelectedPaper(paper)} />)}
               {visiblePapers.length === 0 && <div className="empty-state"><Search size={22} /><strong>No matching papers</strong><span>Try another search or reset your filters.</span></div>}
             </div>
-            <div className="archive-footnote"><span className="footnote-dot" /> PDF links will appear here once each document is added and checked.</div>
+            <div className="archive-footnote"><span className="footnote-dot" /> Papers open from the official JEE Advanced archive. Hindi versions are available from 2019 onward.</div>
           </section>
 
           <section className="subject-strip">
@@ -117,7 +118,7 @@ function App() {
         </div>
       </main>
 
-      {selectedPaper && <div className="modal-backdrop" onClick={() => setSelectedPaper(null)}><div className="paper-modal" onClick={(event) => event.stopPropagation()}><button className="icon-button modal-close" onClick={() => setSelectedPaper(null)} aria-label="Close"><X size={18} /></button><div className="modal-icon"><FileText size={24} /></div><div className="section-kicker">PAPER DETAILS</div><h2>{selectedPaper.year} · Paper {selectedPaper.paperNumber}</h2><p>This paper entry is prepared in the archive. Its PDF has not been uploaded yet.</p><div className="modal-status"><Clock3 size={15} /> Awaiting verified PDF</div><button className="primary-button" onClick={() => setSelectedPaper(null)}>Back to archive</button></div></div>}
+      {selectedPaper && <div className="modal-backdrop" onClick={() => setSelectedPaper(null)}><div className="paper-modal" onClick={(event) => event.stopPropagation()}><button className="icon-button modal-close" onClick={() => setSelectedPaper(null)} aria-label="Close"><X size={18} /></button><div className="modal-icon"><FileText size={24} /></div><div className="section-kicker">OFFICIAL QUESTION PAPER</div><h2>{selectedPaper.year} · Paper {selectedPaper.paperNumber}</h2><p>Open the original question paper directly from the official JEE Advanced website. Choose your preferred language.</p><div className="modal-status official-status"><Check size={15} /> Official source · jeeadv.ac.in</div><div className="modal-actions"><a className="primary-button" href={selectedPaper.pdfUrls.English} target="_blank" rel="noreferrer">Open English PDF <ArrowUpRight size={14} /></a>{selectedPaper.pdfUrls.Hindi && <a className="secondary-button" href={selectedPaper.pdfUrls.Hindi} target="_blank" rel="noreferrer">Open Hindi PDF <ArrowUpRight size={14} /></a>}</div><a className="source-link" href={selectedPaper.sourceUrl} target="_blank" rel="noreferrer">View complete official archive</a></div></div>}
     </div>
   )
 }
@@ -128,11 +129,11 @@ function Stat({ icon, label, value, detail }: { icon: ReactNode; label: string; 
 
 function PaperCard({ paper, onOpen }: { paper: Paper; onOpen: () => void }) {
   return <article className="paper-card">
-    <div className="paper-card-top"><div className={paper.paperNumber === 1 ? 'paper-symbol symbol-one' : 'paper-symbol symbol-two'}>{paper.paperNumber === 1 ? <Atom size={21} /> : <Command size={21} />}</div><span className="pending-badge"><span /> PDF PENDING</span></div>
+    <div className="paper-card-top"><div className={paper.paperNumber === 1 ? 'paper-symbol symbol-one' : 'paper-symbol symbol-two'}>{paper.paperNumber === 1 ? <Atom size={21} /> : <Command size={21} />}</div><span className="official-badge"><span /> OFFICIAL PDF</span></div>
     <div className="paper-title">Paper {paper.paperNumber}<span>0{paper.paperNumber}</span></div>
     <p className="paper-desc">JEE Advanced {paper.year} · {paper.paperNumber === 1 ? 'Morning session' : 'Afternoon session'}</p>
     <div className="paper-subjects"><span>PHY</span><span>CHE</span><span>MAT</span></div>
-    <div className="paper-card-bottom"><span><FileText size={14} /> PDF not added</span><button onClick={onOpen} aria-label={`View ${paper.year} paper ${paper.paperNumber} details`}>Details <ArrowUpRight size={14} /></button></div>
+    <div className="paper-card-bottom"><span><FileText size={14} /> PDF available</span><button onClick={onOpen} aria-label={'Open ' + paper.year + ' paper ' + paper.paperNumber}>Open paper <ArrowUpRight size={14} /></button></div>
   </article>
 }
 export default App
