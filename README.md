@@ -22,10 +22,14 @@ A full-stack JEE Advanced archive and exam-practice platform. The existing front
 - PostgreSQL database schema managed with Prisma
 - Initial models for users, exams, questions, exam attempts, and saved answers
 - API health and database health endpoints
+- Registration/login UI with session restoration and sign-out
+- Bcrypt password hashing and opaque, hashed database sessions
+- HttpOnly, SameSite cookie sessions with seven-day expiry
+- Rate-limited authentication endpoints
 - Vite development proxy for `/api` requests
 - CI builds the frontend and backend separately
 
-> Backend foundation is in place, but authentication, exam APIs, answer autosave, scoring, and analytics are not implemented yet.
+> Account registration, sign-in, sign-out, and session restoration are implemented in the API and connected to the frontend. PostgreSQL must be configured and migrated locally before account creation can be used. Exam management, answer autosave, scoring, and analytics are not implemented yet.
 
 ## Technology
 
@@ -106,7 +110,7 @@ The frontend runs at `http://localhost:5173` and the API at `http://localhost:40
 - [x] Saved PDF reading positions
 - [x] Backend workspace and API foundation
 - [x] Initial PostgreSQL/Prisma data model
-- [ ] User registration, login, and session handling
+- [x] User registration, login, and session handling
 - [ ] Admin question and exam management
 - [ ] Interactive MCQ, MSQ, and numerical exam engine
 - [ ] Timed attempts, answer autosave, and submission
