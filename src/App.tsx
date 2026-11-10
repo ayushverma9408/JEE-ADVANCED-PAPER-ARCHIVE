@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
   Archive, ArrowUpRight, Atom, BookOpen, Check,
-  ChevronDown, Command, FileText, FlaskConical,
+  ChevronDown, ChevronLeft, ChevronRight, Command, FileText, FlaskConical,
   Download, ExternalLink, LayoutDashboard, Maximize2, Menu, Search, SlidersHorizontal, Sparkles, X,
 } from 'lucide-react'
 import { papers, years } from './data/papers'
@@ -24,6 +24,8 @@ function App() {
     if (!selectedPaper) return
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setSelectedPaper(null)
+      if (event.key === 'ArrowLeft') { event.preventDefault(); navigateReader(previousPaper) }
+      if (event.key === 'ArrowRight') { event.preventDefault(); navigateReader(nextPaper) }
     }
     window.addEventListener('keydown', handleKeyDown)
     document.body.style.overflow = 'hidden'
@@ -31,7 +33,7 @@ function App() {
       window.removeEventListener('keydown', handleKeyDown)
       document.body.style.overflow = ''
     }
-  }, [selectedPaper])
+  }, [selectedPaper, previousPaper, nextPaper])
 
   useEffect(() => {
     const syncFullscreen = () => setReaderFullscreen(Boolean(document.fullscreenElement))
@@ -41,6 +43,16 @@ function App() {
 
   const openReader = (paper: Paper) => {
     setReaderLanguage('English')
+    setSelectedPaper(paper)
+  }
+
+  const selectedPaperIndex = selectedPaper ? papers.findIndex((paper) => paper.id === selectedPaper.id) : -1
+  const previousPaper = selectedPaperIndex > 0 ? papers[selectedPaperIndex - 1] : null
+  const nextPaper = selectedPaperIndex >= 0 && selectedPaperIndex < papers.length - 1 ? papers[selectedPaperIndex + 1] : null
+
+  const navigateReader = (paper: Paper | null) => {
+    if (!paper) return
+    setReaderLanguage((current) => paper.pdfUrls[current] ? current : 'English')
     setSelectedPaper(paper)
   }
 
@@ -171,6 +183,11 @@ function App() {
               {(['English', 'Hindi'] as PaperLanguage[]).map((language) => (
                 <button key={language} disabled={!selectedPaper.pdfUrls[language]} className={readerLanguage === language ? 'reader-language-active' : ''} onClick={() => setReaderLanguage(language)}>{language}</button>
               ))}
+            </div>
+            <div className="reader-paper-nav" aria-label="Paper navigation">
+              <button onClick={() => navigateReader(previousPaper)} disabled={!previousPaper} title="Previous paper (←)"><ChevronLeft size={15} /><span>Previous</span></button>
+              <span>{selectedPaperIndex + 1} / {papers.length}</span>
+              <button onClick={() => navigateReader(nextPaper)} disabled={!nextPaper} title="Next paper (→)"><span>Next</span><ChevronRight size={15} /></button>
             </div>
             <div className="reader-document-actions">
               <span className="reader-source-label"><span /> OFFICIAL PDF</span>
