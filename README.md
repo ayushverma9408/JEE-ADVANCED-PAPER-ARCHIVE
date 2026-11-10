@@ -1,92 +1,122 @@
 # JEE Advanced Paper Archive
 
-A responsive, dark-mode library for browsing JEE Advanced previous-year question papers from **2007 to 2025**. The archive links directly to PDFs hosted by the official JEE Advanced website.
+A full-stack JEE Advanced archive and exam-practice platform. The existing frontend provides a responsive library of official previous-year paper PDFs (2007–2025). A separate API and PostgreSQL data model are being added to support accounts, interactive exams, saved attempts, scoring, and performance analytics.
 
-## Features
+## Current features
+
+### Archive frontend
 
 - Browse 19 years of JEE Advanced papers (2007–2025)
 - Separate Paper 1 and Paper 2 entries for each year
 - Filter by Physics, Chemistry, and Mathematics
 - Search papers by year and paper number
 - Embedded PDF reader with English/Hindi language switching where available
-- Previous/Next paper navigation inside the reader
-- Reader zoom controls (50%–200%) and direct page-number navigation, using the browser PDF viewer
-- Automatically save and restore each paper's selected page and zoom for each language on the same browser
-- Show saved page/zoom on paper cards and offer a Resume action for papers with saved progress
-- Keyboard navigation with the left and right arrow keys
-- Fullscreen reader mode
-- Direct PDF open/download link and official archive fallback
+- Previous/Next paper navigation, zoom controls, and page navigation
+- Locally save and restore each paper's selected page and zoom
 - Responsive dark academic interface
 
-## PDF sources and language availability
+### Full-stack foundation
 
-- Official archive: https://jeeadv.ac.in/archive.html
-- Official question-paper PDFs: https://jeeadv.ac.in/past_qps
-- English links are listed for 2007–2025.
-- Hindi links are listed for 2019–2025, where the official archive provides them.
-- PDFs are loaded from the official website; this repository does not bundle the question-paper files.
+- React + TypeScript + Vite frontend
+- Node.js + Express + TypeScript API in the `server/` workspace
+- PostgreSQL database schema managed with Prisma
+- Initial models for users, exams, questions, exam attempts, and saved answers
+- API health and database health endpoints
+- Vite development proxy for `/api` requests
+- CI builds the frontend and backend separately
 
-Reading positions are stored locally in the browser per paper and language. The card indicator reflects the page and zoom selected with the archive's custom reader controls; the embedded cross-origin PDF viewer does not expose native-toolbar navigation or scroll position to the app.
+> Backend foundation is in place, but authentication, exam APIs, answer autosave, scoring, and analytics are not implemented yet.
 
-The application generates the archive entries from `src/data/papers.ts`. Check the official archive before adding or changing a PDF URL.
+## Technology
 
-## Tech stack
-
-- React 18
-- Vite 6
-- TypeScript
-- Lucide React
-- Custom responsive CSS
+| Layer | Technology |
+|---|---|
+| Frontend | React 18, TypeScript, Vite |
+| Backend | Node.js, Express, TypeScript |
+| Database | PostgreSQL |
+| ORM | Prisma |
+| Validation | Zod |
 
 ## Run locally
 
+Requirements: Node.js 22+ and PostgreSQL 14+.
+
+Install all workspace dependencies from the repository root:
+
 ```bash
-git clone https://github.com/ayushverma9408/JEE-ADVANCED-PAPER-ARCHIVE.git
-cd JEE-ADVANCED-PAPER-ARCHIVE
 npm install
+```
+
+Start the frontend:
+
+```bash
 npm run dev
 ```
 
-Create and preview a production build:
+Configure the backend:
 
 ```bash
-npm run build
-npm run preview
+cp server/.env.example server/.env
 ```
+
+Set `DATABASE_URL` in `server/.env` to your PostgreSQL connection string. Then generate the Prisma client and create the database tables:
+
+```bash
+npm run db:generate
+npm run db:migrate
+```
+
+Start the API in a second terminal:
+
+```bash
+npm run dev:server
+```
+
+The frontend runs at `http://localhost:5173` and the API at `http://localhost:4000`. During local development, Vite proxies `/api` requests to the backend.
+
+## API health checks
+
+- `GET /api/health` — confirms that the API process is running.
+- `GET /api/health/database` — checks the PostgreSQL connection.
 
 ## Project structure
 
 ```text
 .
-├── index.html
-├── package.json
+├── .github/workflows/build.yml
+├── server/
+│   ├── prisma/schema.prisma
+│   ├── src/index.ts
+│   ├── .env.example
+│   ├── package.json
+│   └── tsconfig.json
 ├── src/
-│   ├── data/
-│   │   └── papers.ts
-│   ├── types/
-│   │   └── paper.ts
+│   ├── data/papers.ts
+│   ├── types/paper.ts
 │   ├── App.tsx
 │   ├── index.css
 │   └── main.tsx
-└── .github/
-    └── workflows/
-        └── build.yml
+├── package.json
+└── vite.config.ts
 ```
 
 ## Roadmap
 
-- [x] Responsive archive dashboard
-- [x] Year navigation, subject filters, and search
-- [x] Official PDF links for the listed archive years
-- [x] Embedded PDF reader
-- [x] English/Hindi language switching where available
-- [x] Previous/Next paper navigation
-- [x] PDF zoom and page controls
-- [x] Remember reader page and zoom between visits
-- [x] Show saved reading positions and resume papers from their cards
-- [x] Keyboard navigation and fullscreen support
-- [ ] Accessibility and cross-device reader testing
+- [x] Official paper archive and PDF reader
+- [x] Saved PDF reading positions
+- [x] Backend workspace and API foundation
+- [x] Initial PostgreSQL/Prisma data model
+- [ ] User registration, login, and session handling
+- [ ] Admin question and exam management
+- [ ] Interactive MCQ, MSQ, and numerical exam engine
+- [ ] Timed attempts, answer autosave, and submission
+- [ ] JEE-style marking and result evaluation
+- [ ] Attempt history and performance analytics
+- [ ] Production deployment for frontend, API, and database
 
----
+## Official paper sources
 
-Built as a community-focused study resource for JEE Advanced aspirants.
+- Official archive: https://jeeadv.ac.in/archive.html
+- Official question-paper PDFs: https://jeeadv.ac.in/past_qps
+
+The PDFs are loaded from the official website; this repository does not bundle the question-paper files.
