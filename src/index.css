@@ -5,3 +5,14 @@
 @media(max-width:1100px){.page-content{padding-left:28px;padding-right:28px}.topbar{padding:0 28px}.hero-emblem{margin-right:20px}.subject-strip{grid-template-columns:repeat(3,1fr)}.subject-strip>div:first-child{grid-column:1/-1;margin-bottom:3px}}
 @media(max-width:760px){.sidebar{transform:translateX(-100%);transition:transform .25s;width:270px}.sidebar.sidebar-open{transform:translateX(0)}.mobile-scrim{display:block;position:fixed;inset:0;background:#02040ac9;border:0;z-index:4}.mobile-menu-button,.mobile-close{display:grid}.mobile-menu-button{margin-left:auto}.topbar{height:60px;padding:0 18px}.topbar-actions{display:none}.page-content{padding:34px 18px 22px}.welcome-row{min-height:0}.welcome-row h1{font-size:39px}.hero-copy{max-width:340px;line-height:1.6}.hero-emblem{width:115px;height:115px;margin:0 0 0 8px;flex-shrink:0}.emblem-core{width:63px;height:63px}.emblem-core svg{width:31px}.emblem-caption{font-size:6px;letter-spacing:1px}.stats-grid{grid-template-columns:repeat(2,1fr);margin:28px 0 42px;gap:8px}.stat-card{min-height:105px;padding:13px}.stat-value{font-size:24px}.section-heading h2{font-size:21px}.archive-toolbar{align-items:flex-start;gap:12px;flex-direction:column}.subject-tabs{width:100%;overflow:auto}.subject-tab{white-space:nowrap;flex:1;padding:8px 7px}.paper-grid{grid-template-columns:1fr}.subject-strip{grid-template-columns:1fr;gap:14px;margin-top:38px}.subject-strip>div:first-child{grid-column:auto}.subject-mini{max-width:300px}.footer{flex-direction:column;line-height:1.6}.filter-button{font-size:9px}.welcome-row h1{letter-spacing:-1.7px}}
 @media(max-width:420px){.hero-emblem{display:none}.welcome-row h1{font-size:36px}.section-heading{align-items:flex-start;gap:10px;flex-direction:column}.filter-button{align-self:flex-start}}
+
+/* Official-paper archive actions */
+.official-badge{display:flex;align-items:center;gap:6px;font:8px 'DM Mono',monospace;letter-spacing:.7px;color:#80d7c1;background:#172b2b;border:1px solid #28504b;padding:5px 7px;border-radius:4px}
+.official-badge span{width:5px;height:5px;background:#72d4b8;border-radius:50%}
+.official-status{color:#83d8c2;background:#172b2b;border-color:#28504b}
+.modal-actions{display:grid;gap:8px;margin:17px 0 12px}
+.modal-actions a{display:flex;align-items:center;justify-content:center;gap:7px;text-decoration:none}
+.secondary-button{width:100%;padding:10px;border:1px solid #34435a;background:#1a2231;color:#c4cde0;border-radius:7px;font-size:11px}
+.secondary-button:hover{border-color:#7661b4;color:#e4dcff}
+.source-link{display:block;text-align:center;color:#8e9ab0;font-size:10px;text-decoration:none;margin-top:13px}
+.source-link:hover{color:#c9baff}
