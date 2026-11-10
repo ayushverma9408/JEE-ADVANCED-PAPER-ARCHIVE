@@ -48,3 +48,12 @@
 .reader-footer a:hover{color:#d2c5ff}
 .pdf-reader:fullscreen{width:100%;height:100%;max-width:none;max-height:none;border:0;border-radius:0}
 @media(max-width:600px){.reader-backdrop{padding:0}.pdf-reader{width:100%;height:100dvh;min-height:0;border:0;border-radius:0}.reader-header{height:58px;padding:0 10px}.reader-brand{gap:7px}.reader-brand strong{font-size:10px;max-width:190px}.reader-brand small{font-size:7px}.reader-header-actions{gap:5px}.reader-icon-action{width:34px;padding:0;justify-content:center}.reader-icon-action span{display:none}.reader-close{width:32px;height:34px}.reader-toolbar{height:auto;min-height:54px;padding:7px 10px;flex-wrap:wrap}.reader-language>span{display:none}.reader-language button{padding:6px 8px}.reader-document-actions{gap:7px}.reader-source-label{font-size:7px}.reader-download{font-size:8px;padding:0 7px}.reader-footer{height:auto;min-height:34px;padding:6px 9px;font-size:7px}.reader-footer a{font-size:7px}}
+
+
+/* Reader paper navigation */
+.reader-paper-nav{display:flex;align-items:center;justify-content:center;gap:9px;flex-shrink:0}
+.reader-paper-nav button{height:30px;display:flex;align-items:center;gap:4px;padding:0 8px;border:1px solid #2b354a;border-radius:5px;background:#171e2d;color:#c1cadd;font-size:9px}
+.reader-paper-nav button:hover:not(:disabled){border-color:#7160a8;color:#e0d6ff}
+.reader-paper-nav button:disabled{opacity:.3;cursor:not-allowed}
+.reader-paper-nav>span{min-width:34px;text-align:center;font:9px 'DM Mono',monospace;color:#7f8ba1}
+@media(max-width:600px){.reader-paper-nav{gap:4px}.reader-paper-nav button{height:28px;padding:0 5px}.reader-paper-nav button span{display:none}.reader-paper-nav>span{min-width:29px;font-size:8px}}
