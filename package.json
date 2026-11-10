@@ -1,13 +1,14 @@
 {
   "name": "jee-advanced-paper-archive",
   "private": true,
-  "version": "1.1.0",
-  "description": "A responsive JEE Advanced previous-year question paper archive with official PDF links and an embedded reader.",
+  "version": "1.2.0",
+  "description": "A responsive JEE Advanced paper archive with official PDF links, an embedded reader, and locally saved reading progress.",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "typecheck": "tsc -b --pretty false"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
