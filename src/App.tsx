@@ -1,12 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
   Archive, ArrowUpRight, Atom, BookOpen, Check,
   ChevronDown, Command, FileText, FlaskConical,
-  LayoutDashboard, Menu, Search, SlidersHorizontal, Sparkles, X,
+  Download, ExternalLink, LayoutDashboard, Maximize2, Menu, Search, SlidersHorizontal, Sparkles, X,
 } from 'lucide-react'
 import { papers, years } from './data/papers'
-import type { Paper, Subject } from './types/paper'
+import type { Paper, PaperLanguage, Subject } from './types/paper'
 
 const subjects: Subject[] = ['All subjects', 'Physics', 'Chemistry', 'Mathematics']
 
@@ -16,6 +16,43 @@ function App() {
   const [query, setQuery] = useState('')
   const [mobileMenu, setMobileMenu] = useState(false)
   const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null)
+  const [readerLanguage, setReaderLanguage] = useState<PaperLanguage>('English')
+  const [readerFullscreen, setReaderFullscreen] = useState(false)
+  const readerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!selectedPaper) return
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedPaper(null)
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = ''
+    }
+  }, [selectedPaper])
+
+  useEffect(() => {
+    const syncFullscreen = () => setReaderFullscreen(Boolean(document.fullscreenElement))
+    document.addEventListener('fullscreenchange', syncFullscreen)
+    return () => document.removeEventListener('fullscreenchange', syncFullscreen)
+  }, [])
+
+  const openReader = (paper: Paper) => {
+    setReaderLanguage('English')
+    setSelectedPaper(paper)
+  }
+
+  const toggleReaderFullscreen = async () => {
+    if (!readerRef.current) return
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen()
+      else await readerRef.current.requestFullscreen()
+    } catch {
+      window.open(selectedPaper?.pdfUrls[readerLanguage], '_blank', 'noopener,noreferrer')
+    }
+  }
 
   const visiblePapers = useMemo(() => papers.filter((paper) => {
     const matchesYear = paper.year === activeYear
@@ -101,7 +138,7 @@ function App() {
             </div>
 
             <div className="paper-grid">
-              {visiblePapers.map((paper) => <PaperCard key={paper.id} paper={paper} onOpen={() => setSelectedPaper(paper)} />)}
+              {visiblePapers.map((paper) => <PaperCard key={paper.id} paper={paper} onOpen={() => openReader(paper)} />)}
               {visiblePapers.length === 0 && <div className="empty-state"><Search size={22} /><strong>No matching papers</strong><span>Try another search or reset your filters.</span></div>}
             </div>
             <div className="archive-footnote"><span className="footnote-dot" /> Papers open from the official JEE Advanced archive. Hindi versions are available from 2019 onward.</div>
@@ -118,7 +155,34 @@ function App() {
         </div>
       </main>
 
-      {selectedPaper && <div className="modal-backdrop" onClick={() => setSelectedPaper(null)}><div className="paper-modal" onClick={(event) => event.stopPropagation()}><button className="icon-button modal-close" onClick={() => setSelectedPaper(null)} aria-label="Close"><X size={18} /></button><div className="modal-icon"><FileText size={24} /></div><div className="section-kicker">OFFICIAL QUESTION PAPER</div><h2>{selectedPaper.year} · Paper {selectedPaper.paperNumber}</h2><p>Open the original question paper directly from the official JEE Advanced website. Choose your preferred language.</p><div className="modal-status official-status"><Check size={15} /> Official source · jeeadv.ac.in</div><div className="modal-actions"><a className="primary-button" href={selectedPaper.pdfUrls.English} target="_blank" rel="noreferrer">Open English PDF <ArrowUpRight size={14} /></a>{selectedPaper.pdfUrls.Hindi && <a className="secondary-button" href={selectedPaper.pdfUrls.Hindi} target="_blank" rel="noreferrer">Open Hindi PDF <ArrowUpRight size={14} /></a>}</div><a className="source-link" href={selectedPaper.sourceUrl} target="_blank" rel="noreferrer">View complete official archive</a></div></div>}
+      {selectedPaper && <div className="reader-backdrop" onClick={() => setSelectedPaper(null)}>
+        <section className="pdf-reader" ref={readerRef} onClick={(event) => event.stopPropagation()} aria-label="PDF paper reader">
+          <header className="reader-header">
+            <div className="reader-brand"><span className="reader-file-icon"><FileText size={18} /></span><div><strong>JEE Advanced {selectedPaper.year} · Paper {selectedPaper.paperNumber}</strong><small>OFFICIAL QUESTION PAPER</small></div></div>
+            <div className="reader-header-actions">
+              <a className="reader-icon-action" href={selectedPaper.sourceUrl} target="_blank" rel="noreferrer" title="Official archive"><ExternalLink size={16} /><span>Source</span></a>
+              <button className="reader-icon-action" onClick={toggleReaderFullscreen} title="Toggle fullscreen"><Maximize2 size={16} /><span>{readerFullscreen ? 'Exit fullscreen' : 'Fullscreen'}</span></button>
+              <button className="reader-close" onClick={() => setSelectedPaper(null)} aria-label="Close reader"><X size={19} /></button>
+            </div>
+          </header>
+          <div className="reader-toolbar">
+            <div className="reader-language">
+              <span>LANGUAGE</span>
+              {(['English', 'Hindi'] as PaperLanguage[]).map((language) => (
+                <button key={language} disabled={!selectedPaper.pdfUrls[language]} className={readerLanguage === language ? 'reader-language-active' : ''} onClick={() => setReaderLanguage(language)}>{language}</button>
+              ))}
+            </div>
+            <div className="reader-document-actions">
+              <span className="reader-source-label"><span /> OFFICIAL PDF</span>
+              <a href={selectedPaper.pdfUrls[readerLanguage]} target="_blank" rel="noreferrer" className="reader-download"><Download size={14} /> Download / open</a>
+            </div>
+          </div>
+          <div className="reader-frame-wrap">
+            <iframe key={selectedPaper.pdfUrls[readerLanguage]} className="reader-frame" src={selectedPaper.pdfUrls[readerLanguage] ? selectedPaper.pdfUrls[readerLanguage] + '#toolbar=1&navpanes=0&view=FitH' : undefined} title={`JEE Advanced ${selectedPaper.year} Paper ${selectedPaper.paperNumber} ${readerLanguage} PDF`} />
+          </div>
+          <footer className="reader-footer"><span>PDF served by the official JEE Advanced website</span><a href={selectedPaper.sourceUrl} target="_blank" rel="noreferrer">Having trouble viewing? Open official archive <ArrowUpRight size={12} /></a></footer>
+        </section>
+      </div>}
     </div>
   )
 }
