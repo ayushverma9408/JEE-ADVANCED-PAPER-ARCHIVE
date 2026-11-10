@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import {
   Archive, ArrowUpRight, Atom, BookOpen, Check,
   ChevronDown, ChevronLeft, ChevronRight, Command, FileText, FlaskConical,
-  Download, ExternalLink, LayoutDashboard, Maximize2, Menu, Search, SlidersHorizontal, Sparkles, X,
+  Download, ExternalLink, LayoutDashboard, Maximize2, Menu, Search, SlidersHorizontal, Sparkles, X, ZoomIn, ZoomOut, RotateCcw,
 } from 'lucide-react'
 import { papers, years } from './data/papers'
 import type { Paper, PaperLanguage, Subject } from './types/paper'
@@ -18,10 +18,14 @@ function App() {
   const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null)
   const [readerLanguage, setReaderLanguage] = useState<PaperLanguage>('English')
   const [readerFullscreen, setReaderFullscreen] = useState(false)
+  const [readerZoom, setReaderZoom] = useState(100)
+  const [readerPage, setReaderPage] = useState(1)
   const readerRef = useRef<HTMLDivElement>(null)
 
   const openReader = (paper: Paper) => {
     setReaderLanguage('English')
+    setReaderZoom(100)
+    setReaderPage(1)
     setSelectedPaper(paper)
   }
 
@@ -32,6 +36,8 @@ function App() {
   const navigateReader = (paper: Paper | null) => {
     if (!paper) return
     setReaderLanguage((current) => paper.pdfUrls[current] ? current : 'English')
+    setReaderZoom(100)
+    setReaderPage(1)
     setSelectedPaper(paper)
   }
 
@@ -181,8 +187,17 @@ function App() {
             <div className="reader-language">
               <span>LANGUAGE</span>
               {(['English', 'Hindi'] as PaperLanguage[]).map((language) => (
-                <button key={language} disabled={!selectedPaper.pdfUrls[language]} className={readerLanguage === language ? 'reader-language-active' : ''} onClick={() => setReaderLanguage(language)}>{language}</button>
+                <button key={language} disabled={!selectedPaper.pdfUrls[language]} className={readerLanguage === language ? 'reader-language-active' : ''} onClick={() => { setReaderLanguage(language); setReaderPage(1) }}>{language}</button>
               ))}
+            </div>
+            <div className="reader-view-controls" aria-label="PDF view controls">
+              <div className="reader-zoom-controls">
+                <button onClick={() => setReaderZoom((zoom) => Math.max(50, zoom - 10))} disabled={readerZoom <= 50} title="Zoom out"><ZoomOut size={14} /></button>
+                <button className="reader-zoom-value" onClick={() => setReaderZoom(100)} title="Reset zoom">{readerZoom}%</button>
+                <button onClick={() => setReaderZoom((zoom) => Math.min(200, zoom + 10))} disabled={readerZoom >= 200} title="Zoom in"><ZoomIn size={14} /></button>
+              </div>
+              <label className="reader-page-control"><span>PAGE</span><input aria-label="Go to PDF page" type="number" min="1" step="1" value={readerPage} onChange={(event) => setReaderPage(Math.max(1, Number.parseInt(event.target.value, 10) || 1))} /></label>
+              <button className="reader-reset-control" onClick={() => { setReaderZoom(100); setReaderPage(1) }} title="Reset PDF view"><RotateCcw size={13} /><span>Reset</span></button>
             </div>
             <div className="reader-paper-nav" aria-label="Paper navigation">
               <button onClick={() => navigateReader(previousPaper)} disabled={!previousPaper} title="Previous paper (←)"><ChevronLeft size={15} /><span>Previous</span></button>
@@ -195,7 +210,7 @@ function App() {
             </div>
           </div>
           <div className="reader-frame-wrap">
-            <iframe key={selectedPaper.pdfUrls[readerLanguage]} className="reader-frame" src={selectedPaper.pdfUrls[readerLanguage] ? selectedPaper.pdfUrls[readerLanguage] + '#toolbar=1&navpanes=0&view=FitH' : undefined} title={`JEE Advanced ${selectedPaper.year} Paper ${selectedPaper.paperNumber} ${readerLanguage} PDF`} />
+            <iframe key={`${selectedPaper.pdfUrls[readerLanguage]}-${readerPage}-${readerZoom}`} className="reader-frame" src={selectedPaper.pdfUrls[readerLanguage] ? `${selectedPaper.pdfUrls[readerLanguage]}#toolbar=1&navpanes=0&page=${readerPage}&zoom=${readerZoom}` : undefined} title={`JEE Advanced ${selectedPaper.year} Paper ${selectedPaper.paperNumber} ${readerLanguage} PDF`} />
           </div>
           <footer className="reader-footer"><span>PDF served by the official JEE Advanced website</span><a href={selectedPaper.sourceUrl} target="_blank" rel="noreferrer">Having trouble viewing? Open official archive <ArrowUpRight size={12} /></a></footer>
         </section>
