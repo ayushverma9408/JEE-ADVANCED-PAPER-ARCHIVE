@@ -72,7 +72,7 @@ export default function ExamCenter({ onBack }: Props) {
 
   const queueSave = useCallback((questionId: string, patch: Partial<AnswerState>) => {
     pendingRef.current[questionId] = { ...pendingRef.current[questionId], ...patch }
-    setPending((value) => value + 1)
+    setPending(1)
     if (saveTimer.current) clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(async () => {
       const batch = pendingRef.current
@@ -85,7 +85,7 @@ export default function ExamCenter({ onBack }: Props) {
         setError(err instanceof Error ? `Autosave issue: ${err.message}` : 'Autosave failed. Your latest changes may not be saved.')
         pendingRef.current = { ...batch, ...pendingRef.current }
       }
-      setPending((value) => Math.max(0, value - 1))
+      setPending(0)
     }, 450)
   }, [attempt?.id])
 
@@ -208,12 +208,12 @@ export default function ExamCenter({ onBack }: Props) {
           <div className="exam-question-meta"><span>{activeQuestion.subject.toUpperCase()}</span><span>{activeQuestion.section}</span><span>{activeQuestion.type.replace('_', ' ')}</span><span>+{activeQuestion.positiveMarks} / −{activeQuestion.negativeMarks}</span></div>
           <div className="exam-question-heading"><strong>QUESTION {String(activeIndex + 1).padStart(2, '0')}</strong><span>{activeIndex + 1} OF {questions.length}</span></div>
           <div className="exam-prompt">{activeQuestion.prompt}</div>
-          {activeQuestion.type === 'NUMERICAL' ? <label className="exam-numerical"><span>YOUR ANSWER</span><input inputMode="decimal" value={currentState?.answer == null ? '' : String(currentState.answer)} onChange={(event) => updateCurrent({ answer: event.target.value })} placeholder="Enter numerical value" /></label> : <div className="exam-options">
+          {activeQuestion.type === 'NUMERICAL' ? <label className="exam-numerical"><span>YOUR ANSWER</span><input inputMode="decimal" value={currentState?.answer == null ? '' : String(currentState.answer)} onChange={(event) => updateCurrent({ answer: event.target.value === '' ? null : event.target.value })} placeholder="Enter numerical value" /></label> : <div className="exam-options">
             {opts.map((option) => {
               const checked = selected.includes(option.id)
               return <button key={option.id} className={checked ? 'exam-option selected' : 'exam-option'} onClick={() => {
                 if (activeQuestion.type === 'SINGLE_CORRECT') updateCurrent({ answer: option.id })
-                else updateCurrent({ answer: checked ? selected.filter((id) => id !== option.id) : [...selected, option.id] })
+                else updateCurrent({ answer: checked ? (selected.length === 1 ? null : selected.filter((id) => id !== option.id)) : [...selected, option.id] })
               }}><span className="exam-option-key">{option.id}</span><span>{option.text}</span><span className="exam-option-check">{checked ? <Check size={15} /> : null}</span></button>
             })}
           </div>}
