@@ -65,7 +65,7 @@ export async function findSessionUser(prisma: PrismaClient, token: string) {
       id: true,
       expiresAt: true,
       user: {
-        select: { id: true, name: true, email: true, createdAt: true },
+        select: { id: true, name: true, email: true, role: true, createdAt: true },
       },
     },
   })
