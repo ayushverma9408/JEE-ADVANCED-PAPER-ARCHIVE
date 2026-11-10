@@ -2,8 +2,10 @@ import 'dotenv/config'
 import cors from 'cors'
 import express, { type ErrorRequestHandler } from 'express'
 import helmet from 'helmet'
+import { rateLimit } from 'express-rate-limit'
 import { z } from 'zod'
 import { PrismaClient } from '@prisma/client'
+import { createAuthRouter } from './auth-routes.js'
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -20,9 +22,23 @@ app.disable('x-powered-by')
 app.use(helmet())
 app.use(cors({
   origin: env.CLIENT_ORIGIN,
+  credentials: true,
   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
 }))
 app.use(express.json({ limit: '1mb' }))
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: {
+    error: {
+      code: 'TOO_MANY_REQUESTS',
+      message: 'Too many authentication requests. Please try again later.',
+    },
+  },
+})
 
 app.get('/api/health', (_req, res) => {
   res.status(200).json({
@@ -40,6 +56,11 @@ app.get('/api/health/database', async (_req, res, next) => {
     next(error)
   }
 })
+
+app.use('/api/auth', authLimiter, createAuthRouter({
+  prisma,
+  isProduction: env.NODE_ENV === 'production',
+}))
 
 app.use((_req, res) => {
   res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Route not found.' } })
