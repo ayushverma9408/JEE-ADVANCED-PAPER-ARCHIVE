@@ -57,6 +57,8 @@ export default function AdminDashboard({ onBack }: Props) {
     correctAnswer: '"A"', positiveMarks: '4', negativeMarks: '1', displayOrder: '1',
   })
 
+  const selectedExam = exams.find((exam) => exam.id === selectedId)
+
   const loadExams = async (keepSelection = true) => {
     const result = await api<{ exams: Exam[] }>('/exams')
     setExams(result.exams)
@@ -177,8 +179,6 @@ export default function AdminDashboard({ onBack }: Props) {
       await loadExams(false)
     }, 'Exam deleted.')
   }
-
-  const selectedExam = exams.find((exam) => exam.id === selectedId)
 
   return (
     <section className="admin-page">
