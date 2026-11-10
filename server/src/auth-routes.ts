@@ -59,7 +59,7 @@ export function createAuthRouter({ prisma, isProduction }: AuthRouterOptions) {
             },
           },
         },
-        select: { id: true, name: true, email: true, createdAt: true },
+        select: { id: true, name: true, email: true, role: true, createdAt: true },
       })
 
       setSessionCookie(res, token, isProduction)
@@ -113,6 +113,7 @@ export function createAuthRouter({ prisma, isProduction }: AuthRouterOptions) {
           id: userRecord.id,
           name: userRecord.name,
           email: userRecord.email,
+          role: userRecord.role,
           createdAt: userRecord.createdAt,
         },
       })
