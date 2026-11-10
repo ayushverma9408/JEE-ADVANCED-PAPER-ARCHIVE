@@ -5,6 +5,14 @@ export default defineConfig({
   // The archive is deployed from the domain root (including on Vercel).
   base: '/',
   plugins: [react()],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:4000',
+        changeOrigin: true,
+      },
+    },
+  },
   build: {
     target: 'es2020',
     sourcemap: false,
