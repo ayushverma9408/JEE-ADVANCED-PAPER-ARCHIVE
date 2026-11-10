@@ -1,6 +1,6 @@
 # JEE Advanced Paper Archive
 
-A full-stack JEE Advanced archive and exam-practice platform. The existing frontend provides a responsive library of official previous-year paper PDFs (2007–2025). A separate API and PostgreSQL data model are being added to support accounts, interactive exams, saved attempts, scoring, and performance analytics.
+A full-stack JEE Advanced archive and exam-practice platform. The existing frontend provides a responsive library of official previous-year paper PDFs (2007–2025). A separate API and PostgreSQL data model support accounts and are being extended for interactive exams, saved attempts, scoring, and performance analytics.
 
 ## Current features
 
@@ -20,16 +20,16 @@ A full-stack JEE Advanced archive and exam-practice platform. The existing front
 - React + TypeScript + Vite frontend
 - Node.js + Express + TypeScript API in the `server/` workspace
 - PostgreSQL database schema managed with Prisma
-- Initial models for users, exams, questions, exam attempts, and saved answers
-- API health and database health endpoints
-- Registration/login UI with session restoration and sign-out
+- Models for users, sessions, exams, questions, exam attempts, and saved answers
+- User registration/login UI with session restoration and sign-out
 - Bcrypt password hashing and opaque, hashed database sessions
 - HttpOnly, SameSite cookie sessions with seven-day expiry
-- Rate-limited authentication endpoints
-- Vite development proxy for `/api` requests
+- Role-based access control: standard users and administrators
+- Protected admin APIs for exam and question CRUD
+- Zod request validation and rate-limited authentication/admin routes
 - CI builds the frontend and backend separately
 
-> Account registration, sign-in, sign-out, and session restoration are implemented in the API and connected to the frontend. PostgreSQL must be configured and migrated locally before account creation can be used. Exam management, answer autosave, scoring, and analytics are not implemented yet.
+> The admin API includes answer keys, but it is restricted to authenticated administrators. Public exam-delivery endpoints must never return correct answers. PostgreSQL must be configured and migrated locally before account and admin APIs can be used.
 
 ## Technology
 
@@ -51,23 +51,23 @@ Install all workspace dependencies from the repository root:
 npm install
 ```
 
-Start the frontend:
-
-```bash
-npm run dev
-```
-
 Configure the backend:
 
 ```bash
 cp server/.env.example server/.env
 ```
 
-Set `DATABASE_URL` in `server/.env` to your PostgreSQL connection string. Then generate the Prisma client and create the database tables:
+Set `DATABASE_URL` in `server/.env` to your PostgreSQL connection string. Then generate Prisma Client and create the database tables:
 
 ```bash
 npm run db:generate
 npm run db:migrate
+```
+
+Start the frontend:
+
+```bash
+npm run dev
 ```
 
 Start the API in a second terminal:
@@ -83,6 +83,18 @@ The frontend runs at `http://localhost:5173` and the API at `http://localhost:40
 - `GET /api/health` — confirms that the API process is running.
 - `GET /api/health/database` — checks the PostgreSQL connection.
 
+## Administrator setup
+
+New registrations are always standard `USER` accounts. To promote your own account to administrator, first register normally, then run this statement in your trusted PostgreSQL console:
+
+```sql
+UPDATE "User"
+SET "role" = 'ADMIN'
+WHERE "email" = 'your-account-email@example.com';
+```
+
+Replace the example email with your registered email. No public endpoint can grant administrator privileges.
+
 ## Project structure
 
 ```text
@@ -90,7 +102,12 @@ The frontend runs at `http://localhost:5173` and the API at `http://localhost:40
 ├── .github/workflows/build.yml
 ├── server/
 │   ├── prisma/schema.prisma
-│   ├── src/index.ts
+│   ├── src/
+│   │   ├── admin-routes.ts
+│   │   ├── auth-routes.ts
+│   │   ├── auth.ts
+│   │   ├── middleware.ts
+│   │   └── index.ts
 │   ├── .env.example
 │   ├── package.json
 │   └── tsconfig.json
@@ -111,7 +128,9 @@ The frontend runs at `http://localhost:5173` and the API at `http://localhost:40
 - [x] Backend workspace and API foundation
 - [x] Initial PostgreSQL/Prisma data model
 - [x] User registration, login, and session handling
-- [ ] Admin question and exam management
+- [x] Role-based authorization and protected admin APIs
+- [x] Admin exam and question CRUD endpoints
+- [ ] Admin dashboard UI
 - [ ] Interactive MCQ, MSQ, and numerical exam engine
 - [ ] Timed attempts, answer autosave, and submission
 - [ ] JEE-style marking and result evaluation
