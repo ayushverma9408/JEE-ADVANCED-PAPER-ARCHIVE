@@ -20,6 +20,21 @@ function App() {
   const [readerFullscreen, setReaderFullscreen] = useState(false)
   const readerRef = useRef<HTMLDivElement>(null)
 
+  const openReader = (paper: Paper) => {
+    setReaderLanguage('English')
+    setSelectedPaper(paper)
+  }
+
+  const selectedPaperIndex = selectedPaper ? papers.findIndex((paper) => paper.id === selectedPaper.id) : -1
+  const previousPaper = selectedPaperIndex > 0 ? papers[selectedPaperIndex - 1] : null
+  const nextPaper = selectedPaperIndex >= 0 && selectedPaperIndex < papers.length - 1 ? papers[selectedPaperIndex + 1] : null
+
+  const navigateReader = (paper: Paper | null) => {
+    if (!paper) return
+    setReaderLanguage((current) => paper.pdfUrls[current] ? current : 'English')
+    setSelectedPaper(paper)
+  }
+
   useEffect(() => {
     if (!selectedPaper) return
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -40,21 +55,6 @@ function App() {
     document.addEventListener('fullscreenchange', syncFullscreen)
     return () => document.removeEventListener('fullscreenchange', syncFullscreen)
   }, [])
-
-  const openReader = (paper: Paper) => {
-    setReaderLanguage('English')
-    setSelectedPaper(paper)
-  }
-
-  const selectedPaperIndex = selectedPaper ? papers.findIndex((paper) => paper.id === selectedPaper.id) : -1
-  const previousPaper = selectedPaperIndex > 0 ? papers[selectedPaperIndex - 1] : null
-  const nextPaper = selectedPaperIndex >= 0 && selectedPaperIndex < papers.length - 1 ? papers[selectedPaperIndex + 1] : null
-
-  const navigateReader = (paper: Paper | null) => {
-    if (!paper) return
-    setReaderLanguage((current) => paper.pdfUrls[current] ? current : 'English')
-    setSelectedPaper(paper)
-  }
 
   const toggleReaderFullscreen = async () => {
     if (!readerRef.current) return
