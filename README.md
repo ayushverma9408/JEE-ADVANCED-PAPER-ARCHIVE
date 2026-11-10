@@ -26,6 +26,7 @@ A full-stack JEE Advanced archive and exam-practice platform. The existing front
 - HttpOnly, SameSite cookie sessions with seven-day expiry
 - Role-based access control: standard users and administrators
 - Protected admin APIs for exam and question CRUD
+- Role-gated admin dashboard for creating exams, adding questions, managing the question bank, and publishing papers
 - Zod request validation and rate-limited authentication/admin routes
 - CI builds the frontend and backend separately
 
@@ -130,7 +131,7 @@ Replace the example email with your registered email. No public endpoint can gra
 - [x] User registration, login, and session handling
 - [x] Role-based authorization and protected admin APIs
 - [x] Admin exam and question CRUD endpoints
-- [ ] Admin dashboard UI
+- [x] Admin dashboard UI
 - [ ] Interactive MCQ, MSQ, and numerical exam engine
 - [ ] Timed attempts, answer autosave, and submission
 - [ ] JEE-style marking and result evaluation
