@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: jee-archive-api
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build:server && npm run db:deploy
+    startCommand: npm run start --workspace=@jee-archive/server
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: DATABASE_URL
+        sync: false
