@@ -22,6 +22,8 @@ const prisma = new PrismaClient()
 const app = express()
 
 app.disable('x-powered-by')
+// Render terminates TLS at its edge proxy; trust the single forwarded client hop.
+if (env.NODE_ENV === 'production') app.set('trust proxy', 1)
 app.use(helmet())
 app.use(cors({
   origin: env.CLIENT_ORIGIN,
