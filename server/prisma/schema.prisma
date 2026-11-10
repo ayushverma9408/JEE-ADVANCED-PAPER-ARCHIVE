@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum QuestionType {
+  SINGLE_CORRECT
+  MULTIPLE_CORRECT
+  NUMERICAL
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  SUBMITTED
+  EXPIRED
+}
+
+model User {
+  id           String        @id @default(uuid())
+  name         String
+  email        String        @unique
+  passwordHash String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  attempts     ExamAttempt[]
+}
+
+model Exam {
+  id          String        @id @default(uuid())
+  title       String
+  year        Int?
+  paperNumber Int?
+  durationSec Int
+  isPublished Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  questions   Question[]
+  attempts    ExamAttempt[]
+}
+
+model Question {
+  id              String       @id @default(uuid())
+  examId          String
+  exam            Exam         @relation(fields: [examId], references: [id], onDelete: Cascade)
+  section         String
+  subject         String
+  topic           String?
+  type            QuestionType
+  prompt          String
+  options         Json?
+  correctAnswer   Json
+  positiveMarks   Float        @default(4)
+  negativeMarks   Float        @default(0)
+  displayOrder    Int
+  createdAt       DateTime     @default(now())
+
+  @@index([examId, displayOrder])
+  @@index([subject, topic])
+}
+
+model ExamAttempt {
+  id             String          @id @default(uuid())
+  userId         String
+  examId         String
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exam           Exam            @relation(fields: [examId], references: [id], onDelete: Cascade)
+  status         AttemptStatus   @default(IN_PROGRESS)
+  startedAt      DateTime        @default(now())
+  submittedAt    DateTime?
+  score          Float?
+  answers        AttemptAnswer[]
+
+  @@index([userId, startedAt])
+  @@index([examId, status])
+}
+
+model AttemptAnswer {
+  id            String      @id @default(uuid())
+  attemptId     String
+  attempt       ExamAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId    String
+  answer        Json?
+  isMarked      Boolean     @default(false)
+  isVisited     Boolean     @default(false)
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([attemptId, questionId])
+}
