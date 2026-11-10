@@ -11,7 +11,7 @@ import type { Paper, PaperLanguage, Subject } from './types/paper'
 const subjects: Subject[] = ['All subjects', 'Physics', 'Chemistry', 'Mathematics']
 
 
-type ReaderPosition = { page: number; zoom: number }
+type ReaderPosition = { page: number; zoom: number; lastOpenedAt?: number }
 const READER_PROGRESS_KEY = 'jee-archive-reader-progress-v1'
 
 function getReaderPosition(paperId: string, language: PaperLanguage): ReaderPosition {
@@ -21,6 +21,7 @@ function getReaderPosition(paperId: string, language: PaperLanguage): ReaderPosi
     return {
       page: Number.isInteger(position?.page) && (position.page ?? 0) > 0 ? position.page as number : 1,
       zoom: Number.isInteger(position?.zoom) && (position.zoom ?? 0) >= 50 && (position.zoom ?? 0) <= 200 ? position.zoom as number : 100,
+      lastOpenedAt: Number.isFinite(position?.lastOpenedAt) ? position?.lastOpenedAt : undefined,
     }
   } catch {
     return { page: 1, zoom: 100 }
@@ -30,7 +31,7 @@ function getReaderPosition(paperId: string, language: PaperLanguage): ReaderPosi
 function saveReaderPosition(paperId: string, language: PaperLanguage, position: ReaderPosition) {
   try {
     const saved = JSON.parse(localStorage.getItem(READER_PROGRESS_KEY) || '{}') as Record<string, ReaderPosition>
-    saved[`${paperId}:${language}`] = position
+    saved[`${paperId}:${language}`] = { ...position, lastOpenedAt: Date.now() }
     localStorage.setItem(READER_PROGRESS_KEY, JSON.stringify(saved))
   } catch {
     // Reader progress remains available for the current session if storage is unavailable.
@@ -259,12 +260,16 @@ function Stat({ icon, label, value, detail }: { icon: ReactNode; label: string; 
 }
 
 function PaperCard({ paper, onOpen }: { paper: Paper; onOpen: () => void }) {
+  const progress = getReaderPosition(paper.id, 'English')
+  const hasProgress = Boolean(progress.lastOpenedAt) || progress.page > 1 || progress.zoom !== 100
+
   return <article className="paper-card">
     <div className="paper-card-top"><div className={paper.paperNumber === 1 ? 'paper-symbol symbol-one' : 'paper-symbol symbol-two'}>{paper.paperNumber === 1 ? <Atom size={21} /> : <Command size={21} />}</div><span className="official-badge"><span /> OFFICIAL PDF</span></div>
     <div className="paper-title">Paper {paper.paperNumber}<span>0{paper.paperNumber}</span></div>
     <p className="paper-desc">JEE Advanced {paper.year} · {paper.paperNumber === 1 ? 'Morning session' : 'Afternoon session'}</p>
     <div className="paper-subjects"><span>PHY</span><span>CHE</span><span>MAT</span></div>
-    <div className="paper-card-bottom"><span><FileText size={14} /> PDF available</span><button onClick={onOpen} aria-label={'Open ' + paper.year + ' paper ' + paper.paperNumber}>Open paper <ArrowUpRight size={14} /></button></div>
+    {hasProgress && <div className="paper-progress" aria-label={`Saved reading position: page ${progress.page}, zoom ${progress.zoom} percent`}><span className="paper-progress-dot" /><span>Saved position</span><strong>Page {progress.page}</strong><span className="paper-progress-separator">·</span><strong>{progress.zoom}%</strong></div>}
+    <div className="paper-card-bottom"><span><FileText size={14} /> PDF available</span><button onClick={onOpen} aria-label={`${hasProgress ? 'Resume' : 'Open'} ${paper.year} paper ${paper.paperNumber}`}>{hasProgress ? 'Resume paper' : 'Open paper'} <ArrowUpRight size={14} /></button></div>
   </article>
 }
 export default App
