@@ -14,6 +14,7 @@
     "build:server": "npm run db:generate --workspace=@jee-archive/server && npm run build --workspace=@jee-archive/server",
     "db:generate": "npm run db:generate --workspace=@jee-archive/server",
     "db:migrate": "npm run db:migrate --workspace=@jee-archive/server",
+    "db:deploy": "npm run db:deploy --workspace=@jee-archive/server",
     "preview": "vite preview",
     "typecheck": "tsc -b --pretty false"
   },
