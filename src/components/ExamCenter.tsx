@@ -54,6 +54,7 @@ export default function ExamCenter({ onBack }: Props) {
   const [pending, setPending] = useState(0)
   const pendingRef = useRef<Record<string, Partial<AnswerState>>>({})
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const inFlightSave = useRef<Promise<void> | null>(null)
   const submitting = useRef(false)
 
   const activeQuestion = questions[activeIndex]
@@ -77,13 +78,17 @@ export default function ExamCenter({ onBack }: Props) {
     saveTimer.current = setTimeout(async () => {
       const batch = pendingRef.current
       pendingRef.current = {}
+      const saving = Promise.all(Object.entries(batch).map(([id, data]) =>
+        api(`/attempts/${attempt?.id}/answers/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+      )).then(() => undefined)
+      inFlightSave.current = saving
       try {
-        await Promise.all(Object.entries(batch).map(([id, data]) =>
-          api(`/attempts/${attempt?.id}/answers/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-        ))
+        await saving
       } catch (err) {
         setError(err instanceof Error ? `Autosave issue: ${err.message}` : 'Autosave failed. Your latest changes may not be saved.')
         pendingRef.current = { ...batch, ...pendingRef.current }
+      } finally {
+        if (inFlightSave.current === saving) inFlightSave.current = null
       }
       setPending(0)
     }, 450)
@@ -129,13 +134,20 @@ export default function ExamCenter({ onBack }: Props) {
       saveTimer.current = null
       const batch = pendingRef.current
       pendingRef.current = {}
+      const saving = Promise.all(Object.entries(batch).map(([id, data]) =>
+        api(`/attempts/${attempt.id}/answers/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+      )).then(() => undefined)
+      inFlightSave.current = saving
       try {
-        await Promise.all(Object.entries(batch).map(([id, data]) =>
-          api(`/attempts/${attempt.id}/answers/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-        ))
+        await saving
       } catch {
         pendingRef.current = batch
+      } finally {
+        if (inFlightSave.current === saving) inFlightSave.current = null
       }
+    }
+    if (inFlightSave.current) {
+      try { await inFlightSave.current } catch { /* Submission will report any server-side rejection. */ }
     }
     try {
       const response = await api<{ result: Result }>(`/attempts/${attempt.id}/submit`, { method: 'POST', body: '{}' })
