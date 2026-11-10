@@ -265,11 +265,11 @@ export function createExamRouter(prisma: PrismaClient) {
         if (correct) correctCount += 1
         else if (answered) incorrectCount += 1
         else unansweredCount += 1
-        return { questionId: question.id, answered, correct, marksAwarded }
+        return { questionId: question.id, subject: question.subject, topic: question.topic, prompt: question.prompt, type: question.type, answer, correctAnswer: question.correctAnswer, answered, correct, marksAwarded }
       })
       const closed = await prisma.examAttempt.update({
         where: { id: attempt.id },
-        data: { status: expired ? 'EXPIRED' : 'SUBMITTED', submittedAt: new Date(), score },
+        data: { status: expired ? 'EXPIRED' : 'SUBMITTED', submittedAt: new Date(), score, resultData: { correctCount, incorrectCount, unansweredCount, totalQuestions: attempt.exam.questions.length, maxScore: attempt.exam.questions.reduce((total, question) => total + question.positiveMarks, 0), breakdown } as Prisma.InputJsonValue },
       })
       res.json({
         result: {
