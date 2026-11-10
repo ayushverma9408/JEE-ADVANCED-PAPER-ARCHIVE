@@ -9,6 +9,7 @@ import { papers, years } from './data/papers'
 import type { Paper, PaperLanguage, Subject } from './types/paper'
 import AuthModal from './components/AuthModal'
 import AdminDashboard from './components/AdminDashboard'
+import ExamCenter from './components/ExamCenter'
 import { getCurrentUser, signOut, type AuthUser } from './lib/auth'
 
 const subjects: Subject[] = ['All subjects', 'Physics', 'Chemistry', 'Mathematics']
@@ -49,6 +50,7 @@ function App() {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null)
   const [authOpen, setAuthOpen] = useState(false)
   const [adminView, setAdminView] = useState(false)
+  const [examView, setExamView] = useState(false)
   const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null)
   const [readerLanguage, setReaderLanguage] = useState<PaperLanguage>('English')
   const [readerFullscreen, setReaderFullscreen] = useState(false)
@@ -159,6 +161,7 @@ function App() {
           <a className="nav-item active" href="#overview"><LayoutDashboard size={17} /> Overview <span className="nav-dot" /></a>
           <a className="nav-item" href="#archive"><Archive size={17} /> Paper archive</a>
           <a className="nav-item" href="#subjects"><BookOpen size={17} /> Subjects</a>
+          <button className={examView ? 'nav-item admin-nav-active' : 'nav-item admin-nav-item'} onClick={() => { if (!authUser) setAuthOpen(true); else { setExamView(true); setAdminView(false) }; setMobileMenu(false) }}><FileText size={17} /> Practice exams</button>
           {authUser?.role === 'ADMIN' && <button className={adminView ? 'nav-item admin-nav-active' : 'nav-item admin-nav-item'} onClick={() => { setAdminView(true); setMobileMenu(false) }}><ShieldCheck size={17} /> Admin dashboard</button>}
         </nav>
 
@@ -181,7 +184,7 @@ function App() {
 
       <main className="main-area" id="overview">
         <header className="topbar">
-          <div className="breadcrumb"><span>Workspace</span><span className="crumb-slash">/</span><strong>{adminView ? 'Administration' : 'Overview'}</strong></div>
+          <div className="breadcrumb"><span>Workspace</span><span className="crumb-slash">/</span><strong>{adminView ? 'Administration' : examView ? 'Practice exams' : 'Overview'}</strong></div>
           <div className="topbar-actions">
             <div className="search-box"><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search papers..." /><kbd>⌘ K</kbd></div>
             <button
@@ -197,7 +200,7 @@ function App() {
         </header>
 
         <div className="page-content">
-          {adminView && authUser?.role === 'ADMIN' ? <AdminDashboard onBack={() => setAdminView(false)} /> : <>
+          {adminView && authUser?.role === 'ADMIN' ? <AdminDashboard onBack={() => setAdminView(false)} /> : examView && authUser ? <ExamCenter onBack={() => setExamView(false)} /> : <>
           <section className="welcome-row">
             <div>
               <div className="eyebrow"><span className="eyebrow-line" /> YOUR PREPARATION, ORGANIZED</div>
