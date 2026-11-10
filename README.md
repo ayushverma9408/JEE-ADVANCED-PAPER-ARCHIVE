@@ -27,6 +27,9 @@ A full-stack JEE Advanced archive and exam-practice platform. The existing front
 - Role-based access control: standard users and administrators
 - Protected admin APIs for exam and question CRUD
 - Role-gated admin dashboard for creating exams, adding questions, managing the question bank, and publishing papers
+- Student practice-exam interface for published papers with single-correct, multiple-correct, and numerical responses
+- Timed attempts with server-authoritative deadlines, answer autosave, resume support, question palette, and mark-for-review state
+- Server-side evaluation using each question's configured positive/negative marks; answer keys are excluded from student delivery responses
 - Zod request validation and rate-limited authentication/admin routes
 - CI builds the frontend and backend separately
 
