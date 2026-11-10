@@ -57,3 +57,21 @@
 .reader-paper-nav button:disabled{opacity:.3;cursor:not-allowed}
 .reader-paper-nav>span{min-width:34px;text-align:center;font:9px 'DM Mono',monospace;color:#7f8ba1}
 @media(max-width:600px){.reader-paper-nav{gap:4px}.reader-paper-nav button{height:28px;padding:0 5px}.reader-paper-nav button span{display:none}.reader-paper-nav>span{min-width:29px;font-size:8px}}
+
+
+/* Custom PDF zoom and page controls */
+.reader-view-controls{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.reader-zoom-controls{display:flex;align-items:center;border:1px solid #2b354a;border-radius:5px;background:#171e2d;overflow:hidden}
+.reader-zoom-controls button{height:29px;min-width:29px;display:grid;place-items:center;border:0;background:transparent;color:#c1cadd}
+.reader-zoom-controls button:hover:not(:disabled){background:#29213e;color:#e0d6ff}
+.reader-zoom-controls button:disabled{opacity:.3;cursor:not-allowed}
+.reader-zoom-controls .reader-zoom-value{min-width:43px;border-left:1px solid #2b354a;border-right:1px solid #2b354a;font:9px 'DM Mono',monospace;color:#c9baff}
+.reader-page-control{height:29px;display:flex;align-items:center;gap:5px;padding:0 7px;border:1px solid #2b354a;border-radius:5px;background:#171e2d}
+.reader-page-control span{font:8px 'DM Mono',monospace;letter-spacing:.7px;color:#78849a}
+.reader-page-control input{width:38px;border:0;outline:0;background:transparent;color:#dce3f2;text-align:center;font:10px 'DM Mono',monospace}
+.reader-page-control input::-webkit-inner-spin-button,.reader-page-control input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.reader-page-control input[type=number]{-moz-appearance:textfield}
+.reader-reset-control{height:29px;display:flex;align-items:center;gap:5px;padding:0 8px;border:1px solid #2b354a;border-radius:5px;background:#171e2d;color:#aeb9ce;font-size:9px}
+.reader-reset-control:hover{border-color:#7160a8;color:#e0d6ff}
+@media(max-width:900px){.reader-toolbar{height:auto;min-height:52px;flex-wrap:wrap;padding-top:7px;padding-bottom:7px}.reader-view-controls{order:3}.reader-paper-nav{order:2}.reader-document-actions{order:4;margin-left:auto}}
+@media(max-width:600px){.reader-view-controls{gap:5px}.reader-zoom-controls button{height:27px;min-width:26px}.reader-zoom-controls .reader-zoom-value{min-width:38px}.reader-page-control{height:27px;padding:0 5px}.reader-page-control input{width:30px}.reader-reset-control{height:27px;padding:0 6px}.reader-reset-control span{display:none}}
