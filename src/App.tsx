@@ -187,7 +187,7 @@ function App() {
               aria-label={authUser ? `Sign out ${authUser.name}` : 'Sign in or create an account'}
               onClick={handleAccountClick}
             >
-              {authUser ? authUser.name.trim().split(/\\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase() : 'JA'}
+              {authUser ? authUser.name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase() : 'JA'}
             </button>
           </div>
           <button className="icon-button mobile-menu-button" onClick={() => setMobileMenu(true)} aria-label="Open menu"><Menu size={20} /></button>
