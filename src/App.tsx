@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
   Archive, ArrowUpRight, Atom, BookOpen, Check,
-  ChevronDown, Clock3, Command, FileText, FlaskConical,
+  ChevronDown, Command, FileText, FlaskConical,
   LayoutDashboard, Menu, Search, SlidersHorizontal, Sparkles, X,
 } from 'lucide-react'
 import { papers, years } from './data/papers'
