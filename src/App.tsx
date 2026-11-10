@@ -163,8 +163,9 @@ function App() {
           <a className="nav-item active" href="#overview"><LayoutDashboard size={17} /> Overview <span className="nav-dot" /></a>
           <a className="nav-item" href="#archive"><Archive size={17} /> Paper archive</a>
           <a className="nav-item" href="#subjects"><BookOpen size={17} /> Subjects</a>
-          <button className={examView ? 'nav-item admin-nav-active' : 'nav-item admin-nav-item'} onClick={() => { if (!authUser) setAuthOpen(true); else { setExamView(true); setAdminView(false) }; setMobileMenu(false) }}><FileText size={17} /> Practice exams</button>
-          {authUser?.role === 'ADMIN' && <button className={adminView ? 'nav-item admin-nav-active' : 'nav-item admin-nav-item'} onClick={() => { setAdminView(true); setMobileMenu(false) }}><ShieldCheck size={17} /> Admin dashboard</button>}
+          <button className={examView ? 'nav-item admin-nav-active' : 'nav-item admin-nav-item'} onClick={() => { if (!authUser) setAuthOpen(true); else { setExamView(true); setAdminView(false); setAnalyticsView(false) }; setMobileMenu(false) }}><FileText size={17} /> Practice exams</button>
+          <button className={analyticsView ? 'nav-item admin-nav-active' : 'nav-item admin-nav-item'} onClick={() => { if (!authUser) setAuthOpen(true); else { setAnalyticsView(true); setExamView(false); setAdminView(false) }; setMobileMenu(false) }}><ChartNoAxesColumnIncreasing size={17} /> My performance</button>
+          {authUser?.role === 'ADMIN' && <button className={adminView ? 'nav-item admin-nav-active' : 'nav-item admin-nav-item'} onClick={() => { setAdminView(true); setExamView(false); setAnalyticsView(false); setMobileMenu(false) }}><ShieldCheck size={17} /> Admin dashboard</button>}
         </nav>
 
         <div className="side-label years-label">BROWSE BY YEAR <ChevronDown size={13} /></div>
