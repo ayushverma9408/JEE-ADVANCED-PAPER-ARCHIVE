@@ -11,6 +11,7 @@ A responsive, dark-mode library for browsing JEE Advanced previous-year question
 - Embedded PDF reader with English/Hindi language switching where available
 - Previous/Next paper navigation inside the reader
 - Reader zoom controls (50%–200%) and direct page-number navigation, using the browser PDF viewer
+- Automatically save and restore each paper's selected page and zoom for each language on the same browser
 - Keyboard navigation with the left and right arrow keys
 - Fullscreen reader mode
 - Direct PDF open/download link and official archive fallback
@@ -78,8 +79,8 @@ npm run preview
 - [x] English/Hindi language switching where available
 - [x] Previous/Next paper navigation
 - [x] PDF zoom and page controls
+- [x] Remember reader page and zoom between visits
 - [x] Keyboard navigation and fullscreen support
-- [ ] Remember the last reading position
 - [ ] Accessibility and cross-device reader testing
 
 ---
