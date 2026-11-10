@@ -10,6 +10,33 @@ import type { Paper, PaperLanguage, Subject } from './types/paper'
 
 const subjects: Subject[] = ['All subjects', 'Physics', 'Chemistry', 'Mathematics']
 
+
+type ReaderPosition = { page: number; zoom: number }
+const READER_PROGRESS_KEY = 'jee-archive-reader-progress-v1'
+
+function getReaderPosition(paperId: string, language: PaperLanguage): ReaderPosition {
+  try {
+    const saved = JSON.parse(localStorage.getItem(READER_PROGRESS_KEY) || '{}') as Record<string, Partial<ReaderPosition>>
+    const position = saved[`${paperId}:${language}`]
+    return {
+      page: Number.isInteger(position?.page) && (position.page ?? 0) > 0 ? position.page as number : 1,
+      zoom: Number.isInteger(position?.zoom) && (position.zoom ?? 0) >= 50 && (position.zoom ?? 0) <= 200 ? position.zoom as number : 100,
+    }
+  } catch {
+    return { page: 1, zoom: 100 }
+  }
+}
+
+function saveReaderPosition(paperId: string, language: PaperLanguage, position: ReaderPosition) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(READER_PROGRESS_KEY) || '{}') as Record<string, ReaderPosition>
+    saved[`${paperId}:${language}`] = position
+    localStorage.setItem(READER_PROGRESS_KEY, JSON.stringify(saved))
+  } catch {
+    // Reader progress remains available for the current session if storage is unavailable.
+  }
+}
+
 function App() {
   const [activeYear, setActiveYear] = useState(2025)
   const [activeSubject, setActiveSubject] = useState<Subject>('All subjects')
@@ -23,9 +50,10 @@ function App() {
   const readerRef = useRef<HTMLDivElement>(null)
 
   const openReader = (paper: Paper) => {
+    const position = getReaderPosition(paper.id, 'English')
     setReaderLanguage('English')
-    setReaderZoom(100)
-    setReaderPage(1)
+    setReaderZoom(position.zoom)
+    setReaderPage(position.page)
     setSelectedPaper(paper)
   }
 
@@ -35,11 +63,18 @@ function App() {
 
   const navigateReader = (paper: Paper | null) => {
     if (!paper) return
-    setReaderLanguage((current) => paper.pdfUrls[current] ? current : 'English')
-    setReaderZoom(100)
-    setReaderPage(1)
+    const language = paper.pdfUrls[readerLanguage] ? readerLanguage : 'English'
+    const position = getReaderPosition(paper.id, language)
+    setReaderLanguage(language)
+    setReaderZoom(position.zoom)
+    setReaderPage(position.page)
     setSelectedPaper(paper)
   }
+
+  useEffect(() => {
+    if (!selectedPaper) return
+    saveReaderPosition(selectedPaper.id, readerLanguage, { page: readerPage, zoom: readerZoom })
+  }, [selectedPaper, readerLanguage, readerPage, readerZoom])
 
   useEffect(() => {
     if (!selectedPaper) return
@@ -187,7 +222,7 @@ function App() {
             <div className="reader-language">
               <span>LANGUAGE</span>
               {(['English', 'Hindi'] as PaperLanguage[]).map((language) => (
-                <button key={language} disabled={!selectedPaper.pdfUrls[language]} className={readerLanguage === language ? 'reader-language-active' : ''} onClick={() => { setReaderLanguage(language); setReaderPage(1) }}>{language}</button>
+                <button key={language} disabled={!selectedPaper.pdfUrls[language]} className={readerLanguage === language ? 'reader-language-active' : ''} onClick={() => { const position = getReaderPosition(selectedPaper.id, language); setReaderLanguage(language); setReaderPage(position.page); setReaderZoom(position.zoom) }}>{language}</button>
               ))}
             </div>
             <div className="reader-view-controls" aria-label="PDF view controls">
