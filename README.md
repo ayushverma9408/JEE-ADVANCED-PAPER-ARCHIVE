@@ -10,6 +10,7 @@ A responsive, dark-mode library for browsing JEE Advanced previous-year question
 - Search papers by year and paper number
 - Embedded PDF reader with English/Hindi language switching where available
 - Previous/Next paper navigation inside the reader
+- Reader zoom controls (50%–200%) and direct page-number navigation, using the browser PDF viewer
 - Keyboard navigation with the left and right arrow keys
 - Fullscreen reader mode
 - Direct PDF open/download link and official archive fallback
@@ -76,8 +77,8 @@ npm run preview
 - [x] Embedded PDF reader
 - [x] English/Hindi language switching where available
 - [x] Previous/Next paper navigation
+- [x] PDF zoom and page controls
 - [x] Keyboard navigation and fullscreen support
-- [ ] Custom zoom and page controls
 - [ ] Remember the last reading position
 - [ ] Accessibility and cross-device reader testing
 
