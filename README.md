@@ -20,7 +20,7 @@ A full-stack JEE Advanced archive and exam-practice platform. The existing front
 - React + TypeScript + Vite frontend
 - Node.js + Express + TypeScript API in the `server/` workspace
 - PostgreSQL database schema managed with Prisma
-- Models for users, sessions, exams, questions, exam attempts, and saved answers
+- Models for users, sessions, exams, questions, exam attempts, and saved answers, with Prisma SQL migrations
 - User registration/login UI with session restoration and sign-out
 - Bcrypt password hashing and opaque, hashed database sessions
 - HttpOnly, SameSite cookie sessions with seven-day expiry
@@ -30,6 +30,9 @@ A full-stack JEE Advanced archive and exam-practice platform. The existing front
 - Student practice-exam interface for published papers with single-correct, multiple-correct, and numerical responses
 - Timed attempts with server-authoritative deadlines, answer autosave, resume support, question palette, and mark-for-review state
 - Server-side evaluation using each question's configured positive/negative marks; answer keys are excluded from student delivery responses
+- Authenticated attempt history with saved question-level result reviews
+- Performance dashboard with attempt totals, average/best score, accuracy, subject breakdown, and topic revision priorities
+- Historical result snapshots preserve the answer key and question context used at submission time
 - Zod request validation and rate-limited authentication/admin routes
 - CI builds the frontend and backend separately
 
@@ -82,7 +85,7 @@ npm run dev:server
 
 The frontend runs at `http://localhost:5173` and the API at `http://localhost:4000`. During local development, Vite proxies `/api` requests to the backend.
 
-## API health checks
+## Analytics API\n\n- `GET /api/analytics/summary` — the signed-in user's scored attempt history and aggregate performance.\n- `GET /api/analytics/attempts/:attemptId` — question-level review for that user's closed attempt only.\n\nResult snapshots are stored when an attempt is evaluated, so later edits to a published question do not rewrite historical review data. Active attempts never expose correct answers.\n\n## API health checks
 
 - `GET /api/health` — confirms that the API process is running.
 - `GET /api/health/database` — checks the PostgreSQL connection.
@@ -135,10 +138,10 @@ Replace the example email with your registered email. No public endpoint can gra
 - [x] Role-based authorization and protected admin APIs
 - [x] Admin exam and question CRUD endpoints
 - [x] Admin dashboard UI
-- [ ] Interactive MCQ, MSQ, and numerical exam engine
-- [ ] Timed attempts, answer autosave, and submission
-- [ ] JEE-style marking and result evaluation
-- [ ] Attempt history and performance analytics
+- [x] Interactive MCQ, MSQ, and numerical exam engine
+- [x] Timed attempts, answer autosave, and submission
+- [x] JEE-style marking and result evaluation
+- [x] Attempt history and performance analytics
 - [ ] Production deployment for frontend, API, and database
 
 ## Official paper sources
