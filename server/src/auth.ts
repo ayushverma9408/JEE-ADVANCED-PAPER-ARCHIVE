@@ -36,7 +36,7 @@ export function readCookie(req: Request, name: string): string | undefined {
 export function setSessionCookie(res: Response, token: string, isProduction: boolean) {
   const attributes = [
     `${SESSION_COOKIE}=${encodeURIComponent(token)}`,
-    'Path=/api/auth',
+    'Path=/api',
     'HttpOnly',
     'SameSite=Lax',
     `Max-Age=${Math.floor(SESSION_TTL_MS / 1000)}`,
@@ -48,7 +48,7 @@ export function setSessionCookie(res: Response, token: string, isProduction: boo
 export function clearSessionCookie(res: Response, isProduction: boolean) {
   const attributes = [
     `${SESSION_COOKIE}=`,
-    'Path=/api/auth',
+    'Path=/api',
     'HttpOnly',
     'SameSite=Lax',
     'Max-Age=0',
