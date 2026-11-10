@@ -75,3 +75,12 @@
 .reader-reset-control:hover{border-color:#7160a8;color:#e0d6ff}
 @media(max-width:900px){.reader-toolbar{height:auto;min-height:52px;flex-wrap:wrap;padding-top:7px;padding-bottom:7px}.reader-view-controls{order:3}.reader-paper-nav{order:2}.reader-document-actions{order:4;margin-left:auto}}
 @media(max-width:600px){.reader-view-controls{gap:5px}.reader-zoom-controls button{height:27px;min-width:26px}.reader-zoom-controls .reader-zoom-value{min-width:38px}.reader-page-control{height:27px;padding:0 5px}.reader-page-control input{width:30px}.reader-reset-control{height:27px;padding:0 6px}.reader-reset-control span{display:none}}
+
+
+/* Saved reading position on archive cards */
+.paper-progress{display:flex;align-items:center;gap:7px;min-width:0;margin-top:13px;padding:8px 9px;border:1px solid #302a48;border-radius:6px;background:#191729;color:#9b91bb;font:8px 'DM Mono',monospace;letter-spacing:.15px}
+.paper-progress-dot{width:5px;height:5px;flex-shrink:0;border-radius:50%;background:#a995f5;box-shadow:0 0 8px #a995f577}
+.paper-progress strong{color:#d4c9f5;font-weight:500}
+.paper-progress-separator{color:#59627a}
+.paper-card:has(.paper-progress) .paper-card-bottom{margin-top:12px}
+@media(max-width:420px){.paper-progress{gap:6px;font-size:7px}}
