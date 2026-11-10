@@ -1,12 +1,19 @@
 {
   "name": "jee-advanced-paper-archive",
   "private": true,
-  "version": "1.2.0",
-  "description": "A responsive JEE Advanced paper archive with official PDF links, an embedded reader, and locally saved reading progress.",
+  "version": "2.0.0",
+  "description": "A full-stack JEE Advanced archive and exam practice platform.",
   "type": "module",
+  "workspaces": [
+    "server"
+  ],
   "scripts": {
     "dev": "vite",
+    "dev:server": "npm run dev --workspace=@jee-archive/server",
     "build": "tsc -b && vite build",
+    "build:server": "npm run db:generate --workspace=@jee-archive/server && npm run build --workspace=@jee-archive/server",
+    "db:generate": "npm run db:generate --workspace=@jee-archive/server",
+    "db:migrate": "npm run db:migrate --workspace=@jee-archive/server",
     "preview": "vite preview",
     "typecheck": "tsc -b --pretty false"
   },
