@@ -12,6 +12,7 @@ A responsive, dark-mode library for browsing JEE Advanced previous-year question
 - Previous/Next paper navigation inside the reader
 - Reader zoom controls (50%–200%) and direct page-number navigation, using the browser PDF viewer
 - Automatically save and restore each paper's selected page and zoom for each language on the same browser
+- Show saved page/zoom on paper cards and offer a Resume action for papers with saved progress
 - Keyboard navigation with the left and right arrow keys
 - Fullscreen reader mode
 - Direct PDF open/download link and official archive fallback
@@ -24,6 +25,8 @@ A responsive, dark-mode library for browsing JEE Advanced previous-year question
 - English links are listed for 2007–2025.
 - Hindi links are listed for 2019–2025, where the official archive provides them.
 - PDFs are loaded from the official website; this repository does not bundle the question-paper files.
+
+Reading positions are stored locally in the browser per paper and language. The card indicator reflects the page and zoom selected with the archive's custom reader controls; the embedded cross-origin PDF viewer does not expose native-toolbar navigation or scroll position to the app.
 
 The application generates the archive entries from `src/data/papers.ts`. Check the official archive before adding or changing a PDF URL.
 
@@ -80,6 +83,7 @@ npm run preview
 - [x] Previous/Next paper navigation
 - [x] PDF zoom and page controls
 - [x] Remember reader page and zoom between visits
+- [x] Show saved reading positions and resume papers from their cards
 - [x] Keyboard navigation and fullscreen support
 - [ ] Accessibility and cross-device reader testing
 
