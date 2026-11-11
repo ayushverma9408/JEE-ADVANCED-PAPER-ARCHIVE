@@ -116,7 +116,12 @@ export default function ExamCenter({ onBack }: Props) {
           .catch((err: unknown) => setError(err instanceof Error ? `Could not save question state: ${err.message}` : 'Could not save question state.'))
       }
       setRemaining(Math.max(0, Math.floor((new Date(data.attempt.deadlineAt).getTime() - Date.now()) / 1000)))
-      if (data.attempt.status !== 'IN_PROGRESS') {
+      if (data.attempt.status === 'EXPIRED') {
+        const finalized = await api<{ result: Result }>(`/attempts/${data.attempt.id}/submit`, { method: 'POST', body: '{}' })
+        setResult(finalized.result)
+        setAttempt(null)
+        setQuestions([])
+      } else if (data.attempt.status !== 'IN_PROGRESS') {
         setError('This attempt is already closed. Start a new published paper when available.')
         setAttempt(null)
       }
