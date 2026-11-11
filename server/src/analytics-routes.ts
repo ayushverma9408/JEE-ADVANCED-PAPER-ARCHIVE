@@ -13,6 +13,7 @@ type StoredBreakdown = {
   answered: boolean
   correct: boolean
   marksAwarded: number
+  positiveMarks?: number
 }
 
 function resultPayload(value: unknown) {
@@ -45,6 +46,7 @@ export function createAnalyticsRouter(prisma: PrismaClient) {
         },
       })
 
+      const scoredAttempts = attempts.filter((attempt) => resultPayload(attempt.resultData) !== null)
       const subjectMap = new Map<string, { attempted: number; correct: number; marks: number; maxMarks: number }>()
       const topicMap = new Map<string, { attempted: number; incorrect: number }>()
       let totalCorrect = 0
@@ -54,7 +56,7 @@ export function createAnalyticsRouter(prisma: PrismaClient) {
       let bestScore = Number.NEGATIVE_INFINITY
       let totalScore = 0
 
-      for (const attempt of attempts) {
+      for (const attempt of scoredAttempts) {
         const result = resultPayload(attempt.resultData)
         if (!result) continue
         totalCorrect += result.correctCount
@@ -66,7 +68,7 @@ export function createAnalyticsRouter(prisma: PrismaClient) {
         bestScore = Math.max(bestScore, score)
         for (const item of result.breakdown) {
           const subject = subjectMap.get(item.subject) ?? { attempted: 0, correct: 0, marks: 0, maxMarks: 0 }
-          subject.maxMarks += Math.max(0, item.marksAwarded)
+          subject.maxMarks += Number(item.positiveMarks ?? Math.max(0, item.marksAwarded))
           if (item.answered) subject.attempted += 1
           if (item.correct) subject.correct += 1
           subject.marks += item.marksAwarded
@@ -92,9 +94,9 @@ export function createAnalyticsRouter(prisma: PrismaClient) {
 
       res.json({
         summary: {
-          attempts: attempts.length,
-          averageScore: attempts.length ? Math.round(totalScore / attempts.length * 100) / 100 : 0,
-          bestScore: attempts.length ? bestScore : 0,
+          attempts: scoredAttempts.length,
+          averageScore: scoredAttempts.length ? Math.round(totalScore / attempts.length * 100) / 100 : 0,
+          bestScore: scoredAttempts.length ? bestScore : 0,
           accuracy: totalAnswered ? Math.round(totalCorrect / totalAnswered * 100) : 0,
           questionsAttempted: totalAnswered,
           totalQuestions,
@@ -102,7 +104,7 @@ export function createAnalyticsRouter(prisma: PrismaClient) {
         },
         subjectStats,
         weakTopics,
-        attempts: attempts.map((attempt) => ({
+        attempts: scoredAttempts.map((attempt) => ({
           id: attempt.id, status: attempt.status, startedAt: attempt.startedAt,
           submittedAt: attempt.submittedAt, score: attempt.score,
           exam: attempt.exam,
