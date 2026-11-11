@@ -246,11 +246,12 @@ export function createExamRouter(prisma: PrismaClient) {
         res.status(404).json({ error: { code: 'ATTEMPT_NOT_FOUND', message: 'Attempt not found.' } })
         return
       }
-      if (attempt.status !== 'IN_PROGRESS') {
+      const canFinalizeExpired = attempt.status === 'EXPIRED' && attempt.resultData === null
+      if (attempt.status !== 'IN_PROGRESS' && !canFinalizeExpired) {
         res.status(409).json({ error: { code: 'ATTEMPT_CLOSED', message: 'This attempt has already been closed.' } })
         return
       }
-      const expired = isAttemptExpired(attempt.startedAt, attempt.exam.durationSec)
+      const expired = attempt.status === 'EXPIRED' || isAttemptExpired(attempt.startedAt, attempt.exam.durationSec)
       const answerMap = new Map(attempt.answers.map((item) => [item.questionId, item.answer]))
       let score = 0
       let correctCount = 0
