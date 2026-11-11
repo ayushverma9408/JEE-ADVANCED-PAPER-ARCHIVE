@@ -78,7 +78,7 @@ export default function ExamCenter({ onBack }: Props) {
     saveTimer.current = setTimeout(async () => {
       const batch = pendingRef.current
       pendingRef.current = {}
-      const saving = Promise.all(Object.entries(batchToSave).map(([id, data]) =>
+      const saving = Promise.all(Object.entries(batch).map(([id, data]) =>
         api(`/attempts/${attempt?.id}/answers/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
       )).then(() => undefined)
       inFlightSave.current = saving
@@ -144,7 +144,7 @@ export default function ExamCenter({ onBack }: Props) {
       batchToSave = pendingRef.current
       pendingRef.current = {}
       if (Object.keys(batchToSave).length > 0) {
-        const saving = Promise.all(Object.entries(batch).map(([id, data]) =>
+        const saving = Promise.all(Object.entries(batchToSave).map(([id, data]) =>
           api(`/attempts/${attempt.id}/answers/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
         )).then(() => undefined)
         inFlightSave.current = saving
