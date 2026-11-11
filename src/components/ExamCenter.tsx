@@ -40,6 +40,13 @@ function formatTime(seconds: number) {
   return `${String(Math.floor(safe / 3600)).padStart(2, '0')}:${String(Math.floor((safe % 3600) / 60)).padStart(2, '0')}:${String(safe % 60).padStart(2, '0')}`
 }
 
+function hasAnswer(value: unknown) {
+  if (value === null || value === undefined) return false
+  if (typeof value === 'string') return value.trim().length > 0
+  if (Array.isArray(value)) return value.length > 0
+  return true
+}
+
 export default function ExamCenter({ onBack }: Props) {
   const [exams, setExams] = useState<Exam[]>([])
   const [loading, setLoading] = useState(true)
@@ -59,7 +66,7 @@ export default function ExamCenter({ onBack }: Props) {
 
   const activeQuestion = questions[activeIndex]
   const currentState = activeQuestion ? answers[activeQuestion.id] : undefined
-  const answeredCount = useMemo(() => Object.values(answers).filter((item) => item.answer !== null && item.answer !== undefined && item.answer !== '').length, [answers])
+  const answeredCount = useMemo(() => Object.values(answers).filter((item) => hasAnswer(item.answer)).length, [answers])
   const markedCount = useMemo(() => Object.values(answers).filter((item) => item.isMarked).length, [answers])
 
   useEffect(() => {
@@ -235,6 +242,7 @@ export default function ExamCenter({ onBack }: Props) {
         <div><span className="exam-kicker">JEE ARCHIVE · LIVE ATTEMPT</span><h1>Practice <span>session.</span></h1></div>
         <div className={remaining < 300 ? 'exam-clock urgent' : 'exam-clock'}><Clock3 size={17} /><div><small>TIME REMAINING</small><strong>{formatTime(remaining)}</strong></div></div>
       </header>
+      {error && <div className="exam-alert"><CircleAlert size={15} />{error}</div>}
       <div className="exam-layout">
         <main className="exam-question-panel">
           <div className="exam-question-meta"><span>{activeQuestion.subject.toUpperCase()}</span><span>{activeQuestion.section}</span><span>{activeQuestion.type.replace('_', ' ')}</span><span>+{activeQuestion.positiveMarks} / −{activeQuestion.negativeMarks}</span></div>
@@ -265,8 +273,8 @@ export default function ExamCenter({ onBack }: Props) {
           <div className="exam-palette-legend"><span><i className="answered" /> Answered</span><span><i className="marked" /> Review</span><span><i className="unvisited" /> Not visited</span></div>
           {sections.map((section) => <div className="exam-palette-section" key={section}><h3>{section}</h3><div>{questions.map((question, index) => ({ question, index })).filter(({ question }) => question.section === section).map(({ question, index }) => {
             const state = answers[question.id]
-            const hasAnswer = state?.answer !== null && state?.answer !== undefined && state?.answer !== ''
-            const cls = state?.isMarked ? 'marked' : hasAnswer ? 'answered' : state?.isVisited ? 'visited' : 'unvisited'
+            const hasResponse = hasAnswer(state?.answer)
+            const cls = state?.isMarked ? 'marked' : hasResponse ? 'answered' : state?.isVisited ? 'visited' : 'unvisited'
             return <button key={question.id} className={`exam-palette-number ${cls} ${index === activeIndex ? 'current' : ''}`} onClick={() => goTo(index)}>{index + 1}</button>
           })}</div></div>)}
           <div className="exam-palette-summary"><span>{answeredCount} answered</span><span>{markedCount} marked</span><span>{questions.length - answeredCount} unanswered</span></div>
