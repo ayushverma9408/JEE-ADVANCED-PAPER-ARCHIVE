@@ -265,7 +265,7 @@ export function createExamRouter(prisma: PrismaClient) {
         if (correct) correctCount += 1
         else if (answered) incorrectCount += 1
         else unansweredCount += 1
-        return { questionId: question.id, subject: question.subject, topic: question.topic, prompt: question.prompt, type: question.type, answer, correctAnswer: question.correctAnswer, answered, correct, marksAwarded }
+        return { questionId: question.id, subject: question.subject, topic: question.topic, prompt: question.prompt, type: question.type, answer, correctAnswer: question.correctAnswer, positiveMarks: question.positiveMarks, answered, correct, marksAwarded }
       })
       const closed = await prisma.examAttempt.update({
         where: { id: attempt.id },
