@@ -132,22 +132,30 @@ export default function ExamCenter({ onBack }: Props) {
     if (saveTimer.current) {
       clearTimeout(saveTimer.current)
       saveTimer.current = null
+    }
+    try {
+      if (inFlightSave.current) await inFlightSave.current
       const batch = pendingRef.current
       pendingRef.current = {}
-      const saving = Promise.all(Object.entries(batch).map(([id, data]) =>
-        api(`/attempts/${attempt.id}/answers/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-      )).then(() => undefined)
-      inFlightSave.current = saving
-      try {
-        await saving
-      } catch {
-        pendingRef.current = batch
-      } finally {
-        if (inFlightSave.current === saving) inFlightSave.current = null
+      if (Object.keys(batch).length > 0) {
+        const saving = Promise.all(Object.entries(batch).map(([id, data]) =>
+          api(`/attempts/${attempt.id}/answers/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+        )).then(() => undefined)
+        inFlightSave.current = saving
+        try {
+          await saving
+        } finally {
+          if (inFlightSave.current === saving) inFlightSave.current = null
+        }
       }
-    }
-    if (inFlightSave.current) {
-      try { await inFlightSave.current } catch { /* Submission will report any server-side rejection. */ }
+    } catch (err) {
+      setError(err instanceof Error ? `Could not save the latest responses: ${err.message}` : 'Could not save the latest responses.')
+      if (!automatic) {
+        pendingRef.current = { ...pendingRef.current }
+        setBusy(false)
+        submitting.current = false
+        return
+      }
     }
     try {
       const response = await api<{ result: Result }>(`/attempts/${attempt.id}/submit`, { method: 'POST', body: '{}' })
