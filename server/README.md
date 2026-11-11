@@ -1,56 +1,83 @@
 # JEE Archive API
 
-The backend workspace for the JEE Advanced Paper Archive. It provides the Express server, validated environment configuration, health endpoints, cookie-based authentication, and the PostgreSQL/Prisma data model.
+The backend workspace for the JEE Advanced Paper Archive. It provides the Express API, cookie-based authentication, publisher tools, student exam attempts, scoring, and private performance analytics.
 
 ## Requirements
 
-- Node.js 22+
+- Node.js 22.x
 - PostgreSQL 14+
 
-## Setup
+## Local setup
 
 From the repository root:
 
 ```bash
 npm install
-cp server/.env.example server/.env
 ```
 
-Set `DATABASE_URL` in `server/.env` to your PostgreSQL connection string. Generate Prisma Client and create the tables:
+Copy `server/.env.example` to `server/.env` and set `DATABASE_URL` to a PostgreSQL connection string. Keep credentials private.
 
 ```bash
 npm run db:generate
 npm run db:migrate
 ```
 
-Start the API:
+Start the frontend and API in separate terminals:
 
 ```bash
+npm run dev
 npm run dev:server
 ```
 
-The API runs at `http://localhost:4000` by default.
+The frontend runs at `http://localhost:5173`; the API runs at `http://localhost:4000`.
 
-## API endpoints
+## API routes
 
 ### Health
 
-- `GET /api/health` — confirms that the API process is running.
-- `GET /api/health/database` — checks the PostgreSQL connection.
+- `GET /api/health` — process health.
+- `GET /api/health/database` — database connectivity.
 
 ### Authentication
 
-- `POST /api/auth/register` — create an account using `{ "name", "email", "password" }`.
-- `POST /api/auth/login` — sign in using `{ "email", "password" }`.
-- `POST /api/auth/logout` — revoke the current session.
-- `GET /api/auth/me` — return the current signed-in user.
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/logout`
+- `GET /api/auth/me`
 
-Authentication uses bcrypt password hashes and opaque random session tokens. Only a SHA-256 hash of each session token is stored in PostgreSQL. The raw token is sent in an HttpOnly, SameSite=Lax cookie with a seven-day expiry; production cookies are Secure. Authentication endpoints are rate-limited.
+Passwords are hashed with bcrypt. Sessions use random opaque tokens; only SHA-256 token hashes are stored in PostgreSQL. Cookies are HttpOnly, SameSite=Lax, scoped to `/api`, and Secure in production.
 
-## Frontend integration
+### Publisher/admin
 
-The React app calls the API through the Vite `/api` development proxy. The account button in the header opens the sign-in/register modal, restores an existing session on page load, and signs out the active session.
+- `GET /api/admin/exams`
+- `POST /api/admin/exams`
+- `PATCH /api/admin/exams/:examId`
+- `DELETE /api/admin/exams/:examId`
+- `GET /api/admin/exams/:examId/questions`
+- `POST /api/admin/exams/:examId/questions`
+- `PATCH /api/admin/questions/:questionId`
+- `DELETE /api/admin/questions/:questionId`
 
-## Current scope
+All publisher routes require an authenticated ADMIN account. New registrations are always USER; there is no public role-promotion endpoint.
 
-Authentication is implemented, but the frontend still needs a running PostgreSQL database and applied Prisma migration before registration/login can succeed. Exam management, answer autosave, scoring, and analytics routes are future milestones.
+### Student exams
+
+- `GET /api/exams` — published exams only.
+- `GET /api/exams/:examId` — published exam with answer keys excluded.
+- `POST /api/exams/:examId/attempts` — start or resume an attempt.
+- `GET /api/exams/attempts/:attemptId` — retrieve the user's attempt.
+- `PATCH /api/exams/attempts/:attemptId/answers/:questionId` — autosave an answer or question state.
+- `POST /api/exams/attempts/:attemptId/submit` — server-side evaluation and closure.
+
+The server enforces ownership and deadlines. Answer keys are never included in active student exam responses. Expired attempts can be finalized from their saved responses.
+
+### Analytics
+
+- `GET /api/analytics/summary` — the authenticated user's scored attempt history and aggregates.
+- `GET /api/analytics/attempts/:attemptId` — question-level review for that user's closed attempt.
+
+## Production
+
+The root `render.yaml` configures the Render API service. Set `DATABASE_URL` to the managed PostgreSQL connection string and `CLIENT_ORIGIN` to the deployed frontend origin. Render's build command generates Prisma Client, builds the API, and applies committed migrations using `prisma migrate deploy`.
+
+The root `vercel.json` proxies `/api/*` to the Render service. If the Render service name or hostname changes, update that destination before deploying the frontend.
