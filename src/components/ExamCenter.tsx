@@ -78,7 +78,7 @@ export default function ExamCenter({ onBack }: Props) {
     saveTimer.current = setTimeout(async () => {
       const batch = pendingRef.current
       pendingRef.current = {}
-      const saving = Promise.all(Object.entries(batch).map(([id, data]) =>
+      const saving = Promise.all(Object.entries(batchToSave).map(([id, data]) =>
         api(`/attempts/${attempt?.id}/answers/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
       )).then(() => undefined)
       inFlightSave.current = saving
@@ -133,11 +133,12 @@ export default function ExamCenter({ onBack }: Props) {
       clearTimeout(saveTimer.current)
       saveTimer.current = null
     }
+    let batchToSave: Record<string, Partial<AnswerState>> = {}
     try {
       if (inFlightSave.current) await inFlightSave.current
-      const batch = pendingRef.current
+      batchToSave = pendingRef.current
       pendingRef.current = {}
-      if (Object.keys(batch).length > 0) {
+      if (Object.keys(batchToSave).length > 0) {
         const saving = Promise.all(Object.entries(batch).map(([id, data]) =>
           api(`/attempts/${attempt.id}/answers/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
         )).then(() => undefined)
@@ -150,8 +151,8 @@ export default function ExamCenter({ onBack }: Props) {
       }
     } catch (err) {
       setError(err instanceof Error ? `Could not save the latest responses: ${err.message}` : 'Could not save the latest responses.')
+      pendingRef.current = { ...batchToSave, ...pendingRef.current }
       if (!automatic) {
-        pendingRef.current = { ...pendingRef.current }
         setBusy(false)
         submitting.current = false
         return
